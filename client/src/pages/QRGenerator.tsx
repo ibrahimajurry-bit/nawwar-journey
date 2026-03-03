@@ -109,13 +109,13 @@ export default function QRGenerator() {
         const imgAspect = logoImg.naturalWidth / logoImg.naturalHeight;
         const useAspect = isSchoolLogo ? SCHOOL_LOGO_ASPECT_RATIO : (imgAspect > 1 ? imgAspect : 1);
         
-        // For rectangular logo: width is ~45% of QR, height adjusts by aspect ratio
-        // This makes the logo wider but shorter, taking less vertical QR space
-        const logoWidth = Math.floor(qrSize * (isSchoolLogo ? 0.42 : 0.28));
+        // For rectangular school logo: width is ~28% of QR, height adjusts by aspect ratio
+        // This keeps the logo small and readable without blocking too much QR data
+        const logoWidth = Math.floor(qrSize * (isSchoolLogo ? 0.28 : 0.22));
         const logoHeight = Math.floor(logoWidth / useAspect);
         
-        const paddingX = Math.floor(logoWidth * 0.08);
-        const paddingY = Math.floor(logoHeight * 0.15);
+        const paddingX = Math.floor(logoWidth * 0.06);
+        const paddingY = Math.floor(logoHeight * 0.10);
         const totalWidth = logoWidth + paddingX * 2;
         const totalHeight = logoHeight + paddingY * 2;
         const x = Math.floor((qrSize - totalWidth) / 2);
@@ -190,10 +190,10 @@ export default function QRGenerator() {
       const qrImg = await loadImage(qrDataUrl);
 
       // Create download canvas with title and subtitle
-      const padding = 80;
-      const titleHeight = 100;
-      const subtitleHeight = 50;
-      const bottomPadding = 60;
+      const padding = 40;
+      const titleHeight = 80;
+      const subtitleHeight = 40;
+      const bottomPadding = 40;
       const totalWidth = qrSize + padding * 2;
       const totalHeight = titleHeight + subtitleHeight + qrSize + padding + bottomPadding;
 
