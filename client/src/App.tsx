@@ -8,11 +8,17 @@ import { GameProvider } from "./contexts/GameContext";
 import Landing from "./pages/Landing";
 import Home from "./pages/Home";
 import QRGenerator from "./pages/QRGenerator";
+import AppsPage from "./pages/AppsPage";
+import GamesPage from "./pages/GamesPage";
+import StoriesPage from "./pages/StoriesPage";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Landing} />
+      <Route path={"/apps"} component={AppsPage} />
+      <Route path={"/games"} component={GamesPage} />
+      <Route path={"/stories"} component={StoriesPage} />
       <Route path={"/games/nawwar"} component={Home} />
       <Route path={"/apps/qr-generator"} component={QRGenerator} />
       <Route path={"/404"} component={NotFound} />
