@@ -1,25 +1,27 @@
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { Streamdown } from 'streamdown';
+import { useGame } from "@/contexts/GameContext";
+import WelcomeScreen from "@/components/WelcomeScreen";
+import StationMap from "@/components/StationMap";
+import QuestionScreen from "@/components/QuestionScreen";
+import Certificate from "@/components/Certificate";
 
-/**
- * All content in this page are only for example, replace with your own feature implementation
- * When building pages, remember your instructions in Frontend Best Practices, Design Guide and Common Pitfalls
- */
 export default function Home() {
-  // If theme is switchable in App.tsx, we can implement theme toggling like this:
-  // const { theme, toggleTheme } = useTheme();
+  const { gameStarted, currentStation } = useGame();
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <main>
-        {/* Example: lucide-react for icons */}
-        <Loader2 className="animate-spin" />
-        Example Page
-        {/* Example: Streamdown for markdown rendering */}
-        <Streamdown>Any **markdown** content</Streamdown>
-        <Button variant="default">Example Button</Button>
-      </main>
-    </div>
-  );
+  // Welcome screen
+  if (!gameStarted) {
+    return <WelcomeScreen />;
+  }
+
+  // Certificate screen
+  if (currentStation === 6) {
+    return <Certificate />;
+  }
+
+  // Station map (currentStation === 0 or after completing a station)
+  if (currentStation === 0) {
+    return <StationMap />;
+  }
+
+  // Question screen (currentStation 1-5)
+  return <QuestionScreen />;
 }
