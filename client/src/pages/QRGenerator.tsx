@@ -1,7 +1,8 @@
 /*
  * QR Code Generator - Professional school-branded QR code tool
  * Design: Green/blue school colors, clean, Arabic RTL, professional
- * Features: URL input, logo embedding, download PNG, reset
+ * Features: URL input, logo embedding in center, download PNG, reset
+ * Logo is drawn on Canvas AFTER QR code generation for guaranteed overlay
  */
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Link } from "wouter";
@@ -9,8 +10,10 @@ import QRCode from "qrcode";
 import { motion } from "framer-motion";
 import { QrCode, Download, RotateCcw, ArrowRight, Upload, Link2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SCHOOL_LOGO_BASE64 } from "@/lib/schoolLogo";
 
-const SCHOOL_LOGO = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663029980891/VGalWSshoNNhMYmE.png";
+// CDN URL for display (img tags), Base64 for canvas operations (no CORS issues)
+const SCHOOL_LOGO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663029980891/VGalWSshoNNhMYmE.png";
 
 export default function QRGenerator() {
   const [url, setUrl] = useState("");
@@ -19,19 +22,20 @@ export default function QRGenerator() {
   const [customLogo, setCustomLogo] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const downloadCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [qrImageSrc, setQrImageSrc] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const currentLogo = customLogo || SCHOOL_LOGO;
+  // For canvas drawing, always use base64 to avoid CORS
+  const currentLogoForCanvas = customLogo || SCHOOL_LOGO_BASE64;
+  // For display in img tags, use CDN URL
+  const currentLogoForDisplay = customLogo || SCHOOL_LOGO_URL;
 
-  // Preload logo image
   const loadImage = useCallback((src: string): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.crossOrigin = "anonymous";
       img.onload = () => resolve(img);
-      img.onerror = reject;
+      img.onerror = () => reject(new Error("Failed to load image: " + src));
       img.src = src;
     });
   }, []);
@@ -64,51 +68,66 @@ export default function QRGenerator() {
     }
   };
 
-  const drawQRWithLogo = useCallback(
-    async (canvas: HTMLCanvasElement, size: number, forDownload: boolean = false) => {
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
+  // Core function: Generate QR code with logo overlay on a canvas
+  const generateQRWithLogo = useCallback(
+    async (qrSize: number): Promise<string> => {
       const fullUrl = normalizeUrl(url);
-      
-      // Generate QR code to canvas
-      await QRCode.toCanvas(canvas, fullUrl, {
-        width: size,
+
+      // Step 1: Generate QR code on a temporary canvas
+      const tempCanvas = document.createElement("canvas");
+      await QRCode.toCanvas(tempCanvas, fullUrl, {
+        width: qrSize,
         margin: 2,
-        errorCorrectionLevel: "H",
+        errorCorrectionLevel: "H", // High error correction to survive logo overlay
         color: {
           dark: "#000000",
           light: "#FFFFFF",
         },
       });
 
-      // Draw logo in center
-      try {
-        const logoImg = await loadImage(currentLogo);
-        const logoSize = size * 0.19;
-        const padding = logoSize * 0.15;
-        const totalSize = logoSize + padding * 2;
-        const x = (size - totalSize) / 2;
-        const y = (size - totalSize) / 2;
+      // Step 2: Create final canvas and draw QR code
+      const finalCanvas = document.createElement("canvas");
+      finalCanvas.width = qrSize;
+      finalCanvas.height = qrSize;
+      const ctx = finalCanvas.getContext("2d");
+      if (!ctx) throw new Error("Canvas context not available");
 
-        // White background for logo
+      ctx.drawImage(tempCanvas, 0, 0, qrSize, qrSize);
+
+      // Step 3: Draw logo in the center
+      try {
+        const logoImg = await loadImage(currentLogoForCanvas);
+        const logoSize = Math.floor(qrSize * 0.22); // 22% of QR size
+        const padding = Math.floor(logoSize * 0.18);
+        const totalSize = logoSize + padding * 2;
+        const x = Math.floor((qrSize - totalSize) / 2);
+        const y = Math.floor((qrSize - totalSize) / 2);
+
+        // White rounded rectangle background
         ctx.fillStyle = "#FFFFFF";
         ctx.beginPath();
-        ctx.roundRect(x, y, totalSize, totalSize, 8);
+        const radius = 10;
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + totalSize - radius, y);
+        ctx.quadraticCurveTo(x + totalSize, y, x + totalSize, y + radius);
+        ctx.lineTo(x + totalSize, y + totalSize - radius);
+        ctx.quadraticCurveTo(x + totalSize, y + totalSize, x + totalSize - radius, y + totalSize);
+        ctx.lineTo(x + radius, y + totalSize);
+        ctx.quadraticCurveTo(x, y + totalSize, x, y + totalSize - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
         ctx.fill();
 
-        // Draw logo
+        // Draw the logo image
         ctx.drawImage(logoImg, x + padding, y + padding, logoSize, logoSize);
       } catch (e) {
-        console.warn("Could not load logo:", e);
+        console.warn("Could not load logo for QR overlay:", e);
       }
 
-      // For download, add title and subtitle
-      if (forDownload) {
-        // This is handled separately in the download function
-      }
+      return finalCanvas.toDataURL("image/png", 1.0);
     },
-    [url, currentLogo, loadImage]
+    [url, currentLogoForCanvas, loadImage]
   );
 
   const generateQR = async () => {
@@ -125,11 +144,9 @@ export default function QRGenerator() {
       const derivedTitle = title || extractTitle(trimmed);
       if (!title) setTitle(derivedTitle);
 
-      // Draw preview QR
-      if (canvasRef.current) {
-        await drawQRWithLogo(canvasRef.current, 300);
-      }
-
+      // Generate preview QR with logo (300px)
+      const previewDataUrl = await generateQRWithLogo(400);
+      setQrImageSrc(previewDataUrl);
       setQrGenerated(true);
     } catch (e) {
       setError("حدث خطأ في إنشاء الكود. تأكد من صحة الرابط.");
@@ -140,84 +157,65 @@ export default function QRGenerator() {
   };
 
   const downloadPNG = async () => {
-    const fullUrl = normalizeUrl(url);
     const displayTitle = title || extractTitle(url);
 
-    // Create a high-res canvas for download
-    const downloadCanvas = document.createElement("canvas");
-    const qrSize = 600;
-    const padding = 60;
-    const titleHeight = 80;
-    const subtitleHeight = 40;
-    const bottomPadding = 40;
-    const totalWidth = qrSize + padding * 2;
-    const totalHeight = titleHeight + subtitleHeight + qrSize + padding + bottomPadding;
-
-    downloadCanvas.width = totalWidth;
-    downloadCanvas.height = totalHeight;
-
-    const ctx = downloadCanvas.getContext("2d");
-    if (!ctx) return;
-
-    // White background
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, totalWidth, totalHeight);
-
-    // Title
-    ctx.fillStyle = "#1a6b3c";
-    ctx.font = "bold 28px 'Tajawal', Arial, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(displayTitle, totalWidth / 2, titleHeight - 10);
-
-    // Subtitle
-    ctx.fillStyle = "#888888";
-    ctx.font = "18px 'Tajawal', Arial, sans-serif";
-    ctx.fillText("Scan to open", totalWidth / 2, titleHeight + subtitleHeight - 10);
-
-    // Generate QR on temp canvas
-    const tempCanvas = document.createElement("canvas");
-    await QRCode.toCanvas(tempCanvas, fullUrl, {
-      width: qrSize,
-      margin: 2,
-      errorCorrectionLevel: "H",
-      color: { dark: "#000000", light: "#FFFFFF" },
-    });
-
-    // Draw QR onto download canvas
-    const qrX = padding;
-    const qrY = titleHeight + subtitleHeight;
-    ctx.drawImage(tempCanvas, qrX, qrY, qrSize, qrSize);
-
-    // Draw logo in center of QR
     try {
-      const logoImg = await loadImage(currentLogo);
-      const logoSize = qrSize * 0.19;
-      const logoPadding = logoSize * 0.15;
-      const totalLogoSize = logoSize + logoPadding * 2;
-      const logoX = qrX + (qrSize - totalLogoSize) / 2;
-      const logoY = qrY + (qrSize - totalLogoSize) / 2;
+      // Generate high-res QR with logo (800px)
+      const qrSize = 800;
+      const qrDataUrl = await generateQRWithLogo(qrSize);
+      const qrImg = await loadImage(qrDataUrl);
 
+      // Create download canvas with title and subtitle
+      const padding = 80;
+      const titleHeight = 100;
+      const subtitleHeight = 50;
+      const bottomPadding = 60;
+      const totalWidth = qrSize + padding * 2;
+      const totalHeight = titleHeight + subtitleHeight + qrSize + padding + bottomPadding;
+
+      const downloadCanvas = document.createElement("canvas");
+      downloadCanvas.width = totalWidth;
+      downloadCanvas.height = totalHeight;
+
+      const ctx = downloadCanvas.getContext("2d");
+      if (!ctx) return;
+
+      // White background
       ctx.fillStyle = "#FFFFFF";
-      ctx.beginPath();
-      ctx.roundRect(logoX, logoY, totalLogoSize, totalLogoSize, 8);
-      ctx.fill();
+      ctx.fillRect(0, 0, totalWidth, totalHeight);
 
-      ctx.drawImage(logoImg, logoX + logoPadding, logoY + logoPadding, logoSize, logoSize);
+      // Title text
+      ctx.fillStyle = "#1a6b3c";
+      ctx.font = "bold 36px 'Tajawal', 'Arial', sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(displayTitle, totalWidth / 2, titleHeight / 2 + 10);
+
+      // Subtitle
+      ctx.fillStyle = "#888888";
+      ctx.font = "22px 'Tajawal', 'Arial', sans-serif";
+      ctx.fillText("Scan to open", totalWidth / 2, titleHeight + subtitleHeight / 2);
+
+      // Draw QR code with logo
+      const qrX = padding;
+      const qrY = titleHeight + subtitleHeight;
+      ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+
+      // Download
+      const link = document.createElement("a");
+      link.download = `QR_${displayTitle.replace(/\s+/g, "_")}.png`;
+      link.href = downloadCanvas.toDataURL("image/png", 1.0);
+      link.click();
     } catch (e) {
-      console.warn("Could not load logo for download:", e);
+      console.error("Download error:", e);
     }
-
-    // Download
-    const link = document.createElement("a");
-    link.download = `QR_${displayTitle.replace(/\s+/g, "_")}.png`;
-    link.href = downloadCanvas.toDataURL("image/png", 1.0);
-    link.click();
   };
 
   const resetAll = () => {
     setUrl("");
     setTitle("");
     setQrGenerated(false);
+    setQrImageSrc("");
     setCustomLogo(null);
     setError("");
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -229,23 +227,17 @@ export default function QRGenerator() {
       const reader = new FileReader();
       reader.onload = (ev) => {
         setCustomLogo(ev.target?.result as string);
-        if (qrGenerated && canvasRef.current) {
-          // Re-generate with new logo
-          setTimeout(() => {
-            drawQRWithLogo(canvasRef.current!, 300);
-          }, 100);
-        }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // Re-draw QR when logo changes
+  // Re-generate QR when logo changes and QR is already generated
   useEffect(() => {
-    if (qrGenerated && canvasRef.current) {
-      drawQRWithLogo(canvasRef.current, 300);
+    if (qrGenerated && url.trim()) {
+      generateQRWithLogo(400).then(setQrImageSrc).catch(console.error);
     }
-  }, [customLogo, qrGenerated, drawQRWithLogo]);
+  }, [customLogo]);
 
   return (
     <div dir="rtl" className="min-h-screen bg-gradient-to-b from-[#f0f7f0] via-white to-[#f0f4f8]">
@@ -259,7 +251,7 @@ export default function QRGenerator() {
                 <span style={{ fontFamily: "'Tajawal', sans-serif" }}>الرئيسية</span>
               </button>
             </Link>
-            <img src={SCHOOL_LOGO} alt="Logo" className="h-12 w-auto" />
+            <img src={SCHOOL_LOGO_URL} alt="Logo" className="h-12 w-auto" />
           </div>
           <div className="text-center mt-4">
             <QrCode size={40} className="mx-auto mb-2 opacity-80" />
@@ -298,13 +290,13 @@ export default function QRGenerator() {
               }}
               onKeyDown={(e) => e.key === "Enter" && generateQR()}
               placeholder="https://example.com"
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-left dir-ltr focus:border-[#1a6b3c] focus:ring-2 focus:ring-[#1a6b3c]/20 outline-none transition-all text-gray-800"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-left focus:border-[#1a6b3c] focus:ring-2 focus:ring-[#1a6b3c]/20 outline-none transition-all text-gray-800"
               dir="ltr"
               style={{ fontFamily: "monospace, 'Tajawal', sans-serif" }}
             />
             {error && (
               <p className="text-red-500 text-sm mt-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                ⚠️ {error}
+                {error}
               </p>
             )}
           </div>
@@ -351,7 +343,7 @@ export default function QRGenerator() {
               </label>
               <div className="flex items-center gap-2">
                 <img
-                  src={currentLogo}
+                  src={currentLogoForDisplay}
                   alt="Current Logo"
                   className="h-10 w-10 object-contain border border-gray-200 rounded-lg p-1"
                 />
@@ -395,7 +387,7 @@ export default function QRGenerator() {
         </motion.div>
 
         {/* QR Output Card */}
-        {qrGenerated && (
+        {qrGenerated && qrImageSrc && (
           <motion.div
             className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -420,13 +412,15 @@ export default function QRGenerator() {
               </h3>
               <p className="text-gray-400 text-sm mb-6">Scan to open</p>
 
-              {/* QR Canvas */}
+              {/* QR Code as Image (with logo baked in) */}
               <div className="inline-block p-6 bg-white rounded-2xl shadow-inner border border-gray-100">
-                <canvas ref={canvasRef} className="mx-auto" />
+                <img
+                  src={qrImageSrc}
+                  alt="QR Code with school logo"
+                  className="mx-auto"
+                  style={{ width: "300px", height: "300px", imageRendering: "pixelated" }}
+                />
               </div>
-
-              {/* Hidden download canvas */}
-              <canvas ref={downloadCanvasRef} className="hidden" />
 
               {/* Download Button */}
               <div className="mt-6">
