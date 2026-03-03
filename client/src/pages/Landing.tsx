@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import { Wrench, Gamepad2, BookImage } from "lucide-react";
 
 const SCHOOL_LOGO = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663029980891/VGalWSshoNNhMYmE.png";
-const BIRD_MASCOT = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663029980891/gwfAUXMSiAbMjjkq.png";
 
 const categories = [
   {
@@ -91,14 +90,6 @@ export default function Landing() {
           >
             قسم اللغة العربية للناطقين بغيرها - ASL
           </motion.p>
-          <motion.img
-            src={BIRD_MASCOT}
-            alt="Bird Mascot"
-            className="h-14 w-auto mt-1"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-          />
         </div>
       </header>
 
