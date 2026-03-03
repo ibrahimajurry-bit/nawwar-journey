@@ -1,34 +1,37 @@
 /*
  * QR Code Generator - Professional school-branded QR code tool
  * Design: Green/blue school colors, clean, Arabic RTL, professional
- * Features: URL input, logo embedding in center, download PNG, reset
+ * Features: URL input, two logo modes (school fixed + custom upload), download PNG, reset
  * Logo is drawn on Canvas AFTER QR code generation for guaranteed overlay
  */
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Link } from "wouter";
 import QRCode from "qrcode";
 import { motion } from "framer-motion";
-import { QrCode, Download, RotateCcw, ArrowRight, Upload, Link2, CheckCircle2 } from "lucide-react";
+import { QrCode, Download, RotateCcw, ArrowRight, Upload, Link2, CheckCircle2, School, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SCHOOL_LOGO_BASE64 } from "@/lib/schoolLogo";
 
 // CDN URL for display (img tags), Base64 for canvas operations (no CORS issues)
 const SCHOOL_LOGO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663029980891/VGalWSshoNNhMYmE.png";
 
+type LogoMode = "school" | "custom";
+
 export default function QRGenerator() {
   const [url, setUrl] = useState("");
   const [title, setTitle] = useState("");
   const [qrGenerated, setQrGenerated] = useState(false);
+  const [logoMode, setLogoMode] = useState<LogoMode>("school");
   const [customLogo, setCustomLogo] = useState<string | null>(null);
+  const [customLogoName, setCustomLogoName] = useState<string>("");
   const [error, setError] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [qrImageSrc, setQrImageSrc] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // For canvas drawing, always use base64 to avoid CORS
-  const currentLogoForCanvas = customLogo || SCHOOL_LOGO_BASE64;
-  // For display in img tags, use CDN URL
-  const currentLogoForDisplay = customLogo || SCHOOL_LOGO_URL;
+  // Determine which logo to use based on mode
+  const currentLogoForCanvas = logoMode === "school" ? SCHOOL_LOGO_BASE64 : (customLogo || SCHOOL_LOGO_BASE64);
+  const currentLogoForDisplay = logoMode === "school" ? SCHOOL_LOGO_URL : (customLogo || SCHOOL_LOGO_URL);
 
   const loadImage = useCallback((src: string): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
@@ -137,6 +140,12 @@ export default function QRGenerator() {
       return;
     }
 
+    // If custom mode selected but no logo uploaded, show error
+    if (logoMode === "custom" && !customLogo) {
+      setError("الرجاء رفع لوجو مخصص أو اختيار لوجو المدرسة");
+      return;
+    }
+
     setError("");
     setIsGenerating(true);
 
@@ -144,7 +153,7 @@ export default function QRGenerator() {
       const derivedTitle = title || extractTitle(trimmed);
       if (!title) setTitle(derivedTitle);
 
-      // Generate preview QR with logo (300px)
+      // Generate preview QR with logo (400px)
       const previewDataUrl = await generateQRWithLogo(400);
       setQrImageSrc(previewDataUrl);
       setQrGenerated(true);
@@ -216,7 +225,9 @@ export default function QRGenerator() {
     setTitle("");
     setQrGenerated(false);
     setQrImageSrc("");
+    setLogoMode("school");
     setCustomLogo(null);
+    setCustomLogoName("");
     setError("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -224,6 +235,7 @@ export default function QRGenerator() {
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setCustomLogoName(file.name);
       const reader = new FileReader();
       reader.onload = (ev) => {
         setCustomLogo(ev.target?.result as string);
@@ -232,12 +244,14 @@ export default function QRGenerator() {
     }
   };
 
-  // Re-generate QR when logo changes and QR is already generated
+  // Re-generate QR when logo mode or custom logo changes and QR is already generated
   useEffect(() => {
     if (qrGenerated && url.trim()) {
-      generateQRWithLogo(400).then(setQrImageSrc).catch(console.error);
+      if (logoMode === "school" || (logoMode === "custom" && customLogo)) {
+        generateQRWithLogo(400).then(setQrImageSrc).catch(console.error);
+      }
     }
-  }, [customLogo]);
+  }, [logoMode, customLogo]);
 
   return (
     <div dir="rtl" className="min-h-screen bg-gradient-to-b from-[#f0f7f0] via-white to-[#f0f4f8]">
@@ -317,41 +331,148 @@ export default function QRGenerator() {
             />
           </div>
 
-          {/* Logo Upload */}
+          {/* Logo Selection - Two Options */}
           <div className="mb-6">
-            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-              <Upload size={16} className="text-[#1a6b3c]" />
-              لوجو مخصص (اختياري)
-              <span className="text-gray-400 text-xs">(Custom Logo)</span>
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+              اختر اللوجو
+              <span className="text-gray-400 text-xs">(Choose Logo)</span>
             </label>
-            <div className="flex items-center gap-3">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleLogoUpload}
-                className="hidden"
-                id="logo-upload"
-              />
-              <label
-                htmlFor="logo-upload"
-                className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-[#1a6b3c] hover:bg-green-50 transition-all text-sm text-gray-600"
-                style={{ fontFamily: "'Tajawal', sans-serif" }}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Option 1: School Logo (Fixed) */}
+              <button
+                type="button"
+                onClick={() => setLogoMode("school")}
+                className={`relative flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                  logoMode === "school"
+                    ? "border-[#1a6b3c] bg-green-50 shadow-md"
+                    : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                }`}
               >
-                <Upload size={16} />
-                رفع لوجو
-              </label>
-              <div className="flex items-center gap-2">
-                <img
-                  src={currentLogoForDisplay}
-                  alt="Current Logo"
-                  className="h-10 w-10 object-contain border border-gray-200 rounded-lg p-1"
-                />
-                <span className="text-xs text-gray-400" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                  {customLogo ? "لوجو مخصص" : "لوجو المدرسة"}
-                </span>
-              </div>
+                {/* Selected indicator */}
+                {logoMode === "school" && (
+                  <div className="absolute top-2 left-2">
+                    <CheckCircle2 size={20} className="text-[#1a6b3c]" />
+                  </div>
+                )}
+                <div className={`w-16 h-16 rounded-xl flex items-center justify-center p-1 ${
+                  logoMode === "school" ? "bg-white shadow-sm border border-green-200" : "bg-gray-50 border border-gray-200"
+                }`}>
+                  <img
+                    src={SCHOOL_LOGO_URL}
+                    alt="School Logo"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1.5 mb-1">
+                    <School size={14} className={logoMode === "school" ? "text-[#1a6b3c]" : "text-gray-500"} />
+                    <span
+                      className={`text-sm font-bold ${logoMode === "school" ? "text-[#1a6b3c]" : "text-gray-700"}`}
+                      style={{ fontFamily: "'Tajawal', sans-serif" }}
+                    >
+                      لوجو الإبداع العلمي
+                    </span>
+                  </div>
+                  <span className="text-xs text-gray-400" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                    يُضاف تلقائيًا
+                  </span>
+                  <span className="block text-xs text-gray-400">(Auto - School Logo)</span>
+                </div>
+              </button>
+
+              {/* Option 2: Custom Logo (Upload) */}
+              <button
+                type="button"
+                onClick={() => setLogoMode("custom")}
+                className={`relative flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                  logoMode === "custom"
+                    ? "border-[#1b5e8a] bg-blue-50 shadow-md"
+                    : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                {/* Selected indicator */}
+                {logoMode === "custom" && (
+                  <div className="absolute top-2 left-2">
+                    <CheckCircle2 size={20} className="text-[#1b5e8a]" />
+                  </div>
+                )}
+                <div className={`w-16 h-16 rounded-xl flex items-center justify-center ${
+                  logoMode === "custom" ? "bg-white shadow-sm border border-blue-200" : "bg-gray-50 border border-gray-200"
+                }`}>
+                  {customLogo ? (
+                    <img
+                      src={customLogo}
+                      alt="Custom Logo"
+                      className="w-full h-full object-contain p-1"
+                    />
+                  ) : (
+                    <ImagePlus size={28} className={logoMode === "custom" ? "text-[#1b5e8a]" : "text-gray-400"} />
+                  )}
+                </div>
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1.5 mb-1">
+                    <Upload size={14} className={logoMode === "custom" ? "text-[#1b5e8a]" : "text-gray-500"} />
+                    <span
+                      className={`text-sm font-bold ${logoMode === "custom" ? "text-[#1b5e8a]" : "text-gray-700"}`}
+                      style={{ fontFamily: "'Tajawal', sans-serif" }}
+                    >
+                      لوجو مخصص
+                    </span>
+                  </div>
+                  <span className="text-xs text-gray-400" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                    ارفع صورة اللوجو
+                  </span>
+                  <span className="block text-xs text-gray-400">(Upload Custom Logo)</span>
+                </div>
+              </button>
             </div>
+
+            {/* Custom Logo Upload Area - Only shown when custom mode is selected */}
+            {logoMode === "custom" && (
+              <motion.div
+                className="mt-3 p-4 bg-blue-50/50 rounded-xl border border-blue-100"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                transition={{ duration: 0.3 }}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                  className="hidden"
+                  id="logo-upload"
+                />
+                <div className="flex items-center gap-3">
+                  <label
+                    htmlFor="logo-upload"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-white border-2 border-dashed border-[#1b5e8a]/40 rounded-xl cursor-pointer hover:border-[#1b5e8a] hover:bg-blue-50 transition-all text-sm text-[#1b5e8a] font-medium"
+                    style={{ fontFamily: "'Tajawal', sans-serif" }}
+                  >
+                    <Upload size={16} />
+                    {customLogo ? "تغيير اللوجو" : "رفع لوجو"}
+                  </label>
+                  {customLogo && (
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={customLogo}
+                        alt="Uploaded Logo"
+                        className="h-10 w-10 object-contain border border-blue-200 rounded-lg p-0.5 bg-white"
+                      />
+                      <span className="text-xs text-gray-500 truncate max-w-[120px]" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                        {customLogoName || "لوجو مخصص"}
+                      </span>
+                    </div>
+                  )}
+                  {!customLogo && (
+                    <span className="text-xs text-gray-400" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                      PNG, JPG, SVG
+                    </span>
+                  )}
+                </div>
+              </motion.div>
+            )}
           </div>
 
           {/* Action Buttons */}
@@ -416,14 +537,19 @@ export default function QRGenerator() {
               <div className="inline-block p-6 bg-white rounded-2xl shadow-inner border border-gray-100">
                 <img
                   src={qrImageSrc}
-                  alt="QR Code with school logo"
+                  alt="QR Code with logo"
                   className="mx-auto"
                   style={{ width: "300px", height: "300px", imageRendering: "pixelated" }}
                 />
               </div>
 
+              {/* Logo mode indicator */}
+              <p className="text-gray-400 text-xs mt-3" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                {logoMode === "school" ? "🏫 لوجو مدرسة الإبداع العلمي" : "🎨 لوجو مخصص"}
+              </p>
+
               {/* Download Button */}
-              <div className="mt-6">
+              <div className="mt-5">
                 <Button
                   onClick={downloadPNG}
                   className="bg-gradient-to-l from-[#1b5e8a] to-[#1a6b3c] hover:from-[#164d73] hover:to-[#155a32] text-white px-8 py-3 rounded-xl font-medium shadow-md hover:shadow-lg transition-all"
