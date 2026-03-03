@@ -91,8 +91,44 @@ export default function GamesPage() {
             </Link>
           </motion.div>
 
-          {/* Placeholder */}
+          {/* Ishara Quiz Card */}
           <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">
+            <Link href="/games/ishara">
+              <div className="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer border border-gray-100 hover:border-orange-200 hover:-translate-y-1">
+                <div className="h-40 bg-gradient-to-br from-emerald-500 via-teal-500 to-blue-600 flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-20">
+                    <div className="absolute top-4 right-4 w-20 h-20 rounded-full bg-white/20 blur-2xl" />
+                    <div className="absolute bottom-4 left-4 w-16 h-16 rounded-full bg-white/15 blur-2xl" />
+                  </div>
+                  <div className="text-center relative z-10">
+                    <div className="text-5xl mb-2">🔤</div>
+                    <p className="text-white font-bold text-lg" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                      أَسْمَاءُ الْإِشَارَةِ
+                    </p>
+                    <p className="text-white/70 text-xs">Demonstrative Pronouns Quiz</p>
+                  </div>
+                </div>
+                <div className="p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <BookOpen size={16} className="text-emerald-500" />
+                    <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                      اختبار تفاعلي
+                    </span>
+                  </div>
+                  <p className="text-gray-600 text-sm leading-relaxed" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                    اختبار تفاعلي عن أسماء الإشارة مع مؤقت وشهادة إتمام
+                  </p>
+                  <div className="mt-3 flex items-center gap-2 text-emerald-500 font-medium text-sm group-hover:gap-3 transition-all" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                    <span>ابدأ الاختبار</span>
+                    <span className="transform rotate-180">→</span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </motion.div>
+
+          {/* Placeholder */}
+          <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
             <div className="relative bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 overflow-hidden h-full min-h-[280px] flex items-center justify-center">
               <div className="text-center p-6">
                 <div className="text-4xl mb-3 opacity-40">🎮</div>

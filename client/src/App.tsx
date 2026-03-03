@@ -11,6 +11,7 @@ import QRGenerator from "./pages/QRGenerator";
 import AppsPage from "./pages/AppsPage";
 import GamesPage from "./pages/GamesPage";
 import StoriesPage from "./pages/StoriesPage";
+import IsharaQuiz from "./pages/IsharaQuiz";
 
 function Router() {
   return (
@@ -20,6 +21,7 @@ function Router() {
       <Route path={"/games"} component={GamesPage} />
       <Route path={"/stories"} component={StoriesPage} />
       <Route path={"/games/nawwar"} component={Home} />
+      <Route path={"/games/ishara"} component={IsharaQuiz} />
       <Route path={"/apps/qr-generator"} component={QRGenerator} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
