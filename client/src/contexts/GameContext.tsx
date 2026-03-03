@@ -3,7 +3,7 @@ import { stations } from "@/lib/gameData";
 
 interface GameState {
   playerName: string;
-  currentStation: number; // 0 = welcome, 1-5 = stations, 6 = certificate
+  currentStation: number; // 0 = map, 1-5 = stations, 6 = certificate
   currentQuestion: number;
   score: number;
   totalQuestions: number;
@@ -23,6 +23,8 @@ interface GameContextType extends GameState {
   goToCertificate: () => void;
   resetGame: () => void;
   dismissFeedback: () => void;
+  getStationProgress: (stationIndex: number) => { answered: number; total: number; complete: boolean };
+  getFirstUnansweredIndex: (stationIndex: number) => number;
 }
 
 const GameContext = createContext<GameContextType | null>(null);
@@ -48,11 +50,39 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const startGame = useCallback(() => {
-    setState((s) => ({ ...s, gameStarted: true, currentStation: 1, currentQuestion: 0 }));
+    setState((s) => ({ ...s, gameStarted: true, currentStation: 0, currentQuestion: 0 }));
   }, []);
 
-  const goToStation = useCallback((station: number) => {
-    setState((s) => ({ ...s, currentStation: station, currentQuestion: 0, showFeedback: false }));
+  // Helper: find first unanswered question index in a station
+  const getFirstUnansweredIndex = useCallback((stationIndex: number): number => {
+    const station = stations[stationIndex];
+    if (!station) return 0;
+    const idx = station.questions.findIndex((q) => !state.answeredQuestions.has(q.id));
+    return idx === -1 ? station.questions.length : idx; // if all answered, return length (triggers complete screen)
+  }, [state.answeredQuestions]);
+
+  const getStationProgress = useCallback((stationIndex: number) => {
+    const station = stations[stationIndex];
+    if (!station) return { answered: 0, total: 0, complete: false };
+    const answered = station.questions.filter((q) => state.answeredQuestions.has(q.id)).length;
+    return { answered, total: station.questions.length, complete: answered === station.questions.length };
+  }, [state.answeredQuestions]);
+
+  const goToStation = useCallback((stationId: number) => {
+    if (stationId === 0) {
+      // Go to map
+      setState((s) => ({ ...s, currentStation: 0, currentQuestion: 0, showFeedback: false }));
+      return;
+    }
+    // When entering a station, jump to first unanswered question
+    setState((s) => {
+      const stationIndex = stationId - 1;
+      const station = stations[stationIndex];
+      if (!station) return { ...s, currentStation: 0 };
+      const firstUnanswered = station.questions.findIndex((q) => !s.answeredQuestions.has(q.id));
+      const qIndex = firstUnanswered === -1 ? station.questions.length : firstUnanswered;
+      return { ...s, currentStation: stationId, currentQuestion: qIndex, showFeedback: false };
+    });
   }, []);
 
   const answerQuestion = useCallback((questionId: number, answerIndex: number): boolean => {
@@ -63,7 +93,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const isCorrect = answerIndex === question.correctAnswer;
 
     setState((s) => {
-      if (s.answeredQuestions.has(questionId)) return { ...s, showFeedback: true, feedbackCorrect: isCorrect };
+      // If already answered, don't allow re-answering
+      if (s.answeredQuestions.has(questionId)) return s;
       const newAnswered = new Set(s.answeredQuestions);
       newAnswered.add(questionId);
       const newStationScores = [...s.stationScores];
@@ -87,13 +118,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setState((s) => {
       const stationData = stations[s.currentStation - 1];
       if (!stationData) return s;
-      const nextQ = s.currentQuestion + 1;
-      if (nextQ >= stationData.questions.length) {
-        // Station complete - go to map
-        const nextStation = s.currentStation < 5 ? 0 : 0;
-        return { ...s, currentQuestion: nextQ, showFeedback: false };
+      // Find next unanswered question after current
+      let nextIdx = s.currentQuestion + 1;
+      while (nextIdx < stationData.questions.length && s.answeredQuestions.has(stationData.questions[nextIdx].id)) {
+        nextIdx++;
       }
-      return { ...s, currentQuestion: nextQ, showFeedback: false };
+      return { ...s, currentQuestion: nextIdx, showFeedback: false };
     });
   }, []);
 
@@ -132,6 +162,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
         goToCertificate,
         resetGame,
         dismissFeedback,
+        getStationProgress,
+        getFirstUnansweredIndex,
       }}
     >
       {children}

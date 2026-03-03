@@ -17,7 +17,7 @@ export default function Home() {
     return <Certificate />;
   }
 
-  // Station map (currentStation === 0 or after completing a station)
+  // Station map (currentStation === 0)
   if (currentStation === 0) {
     return <StationMap />;
   }

@@ -5,7 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 
 function TrueFalseQuestion({ question, onAnswer }: { question: Question; onAnswer: (idx: number) => void }) {
   const [selected, setSelected] = useState<number | null>(null);
-  const { showFeedback, feedbackCorrect } = useGame();
+
+  // Reset selected when question changes
+  useEffect(() => {
+    setSelected(null);
+  }, [question.id]);
 
   const handleSelect = (idx: number) => {
     if (selected !== null) return;
@@ -49,6 +53,11 @@ function TrueFalseQuestion({ question, onAnswer }: { question: Question; onAnswe
 function MCQQuestion({ question, onAnswer }: { question: Question; onAnswer: (idx: number) => void }) {
   const [selected, setSelected] = useState<number | null>(null);
 
+  // Reset selected when question changes
+  useEffect(() => {
+    setSelected(null);
+  }, [question.id]);
+
   const handleSelect = (idx: number) => {
     if (selected !== null) return;
     setSelected(idx);
@@ -89,11 +98,12 @@ function MCQQuestion({ question, onAnswer }: { question: Question; onAnswer: (id
 }
 
 export default function QuestionScreen() {
-  const { currentStation, currentQuestion, answerQuestion, nextQuestion, goToStation, showFeedback, feedbackCorrect, dismissFeedback } = useGame();
+  const { currentStation, currentQuestion, answerQuestion, nextQuestion, goToStation, showFeedback, feedbackCorrect, dismissFeedback, score, totalQuestions, getStationProgress } = useGame();
 
   const station = stations[currentStation - 1];
   if (!station) return null;
 
+  const progress = getStationProgress(currentStation - 1);
   const question = station.questions[currentQuestion];
   const isLastQuestion = currentQuestion >= station.questions.length - 1;
   const stationDone = currentQuestion >= station.questions.length;
@@ -115,6 +125,7 @@ export default function QuestionScreen() {
 
   // Station complete screen
   if (stationDone) {
+    const stationScore = progress.answered;
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background: `linear-gradient(135deg, ${station.color}15, ${station.color}05)` }}>
         <motion.div
@@ -132,9 +143,33 @@ export default function QuestionScreen() {
           <h2 className="text-2xl font-extrabold mb-2" style={{ fontFamily: "'Tajawal', sans-serif", color: station.color }}>
             أَحْسَنْتَ!
           </h2>
-          <p className="text-gray-500 mb-4" style={{ fontFamily: "'Fredoka', sans-serif" }}>
+          <p className="text-gray-500 mb-2" style={{ fontFamily: "'Fredoka', sans-serif" }}>
             Well Done!
           </p>
+
+          {/* Station Score Display */}
+          <div className="bg-gray-50 rounded-2xl p-4 mb-4 inline-block">
+            <p className="text-3xl font-bold" style={{ fontFamily: "'Fredoka', sans-serif", color: station.color }}>
+              {stationScore} / {station.questions.length}
+            </p>
+            <p className="text-sm text-gray-500" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+              نَتِيجَةُ الْمَحَطَّةِ - Station Score
+            </p>
+          </div>
+
+          {/* Overall progress */}
+          <div className="bg-amber-50 rounded-2xl p-3 mb-4">
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-lg">⭐</span>
+              <span className="font-bold text-amber-700" style={{ fontFamily: "'Fredoka', sans-serif" }}>
+                {score}/{totalQuestions}
+              </span>
+              <span className="text-sm text-amber-600" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                الْمَجْمُوعُ الْكُلِّيُّ
+              </span>
+            </div>
+          </div>
+
           <p className="text-lg text-gray-700 mb-6" style={{ fontFamily: "'Tajawal', sans-serif" }}>
             أَكْمَلْتَ مَحَطَّةَ {station.nameAr}
           </p>
@@ -161,6 +196,9 @@ export default function QuestionScreen() {
 
   if (!question) return null;
 
+  // Count how many questions answered in this station so far
+  const answeredInStation = progress.answered;
+
   return (
     <div className="min-h-screen p-4" style={{ background: `linear-gradient(180deg, ${station.color}12, #FFFBEB)` }}>
       <div className="max-w-lg mx-auto">
@@ -181,15 +219,28 @@ export default function QuestionScreen() {
           </div>
         </div>
 
-        {/* Progress bar */}
-        <div className="bg-white/60 rounded-full h-3 mb-6 overflow-hidden">
-          <motion.div
-            className="h-full rounded-full"
-            style={{ backgroundColor: station.color }}
-            initial={{ width: 0 }}
-            animate={{ width: `${((currentQuestion + 1) / station.questions.length) * 100}%` }}
-            transition={{ duration: 0.4 }}
-          />
+        {/* Score & Progress Bar */}
+        <div className="bg-white/70 backdrop-blur rounded-2xl px-4 py-2.5 shadow-md mb-4">
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-2">
+              <span className="text-sm">⭐</span>
+              <span className="text-sm font-bold text-amber-700" style={{ fontFamily: "'Fredoka', sans-serif" }}>
+                {score}/{totalQuestions}
+              </span>
+            </div>
+            <span className="text-xs text-gray-500" style={{ fontFamily: "'Nunito', sans-serif" }}>
+              {answeredInStation}/{station.questions.length} in this station
+            </span>
+          </div>
+          <div className="bg-gray-200 rounded-full h-2.5 overflow-hidden">
+            <motion.div
+              className="h-full rounded-full"
+              style={{ backgroundColor: station.color }}
+              initial={{ width: 0 }}
+              animate={{ width: `${((answeredInStation) / station.questions.length) * 100}%` }}
+              transition={{ duration: 0.4 }}
+            />
+          </div>
         </div>
 
         {/* Question card */}

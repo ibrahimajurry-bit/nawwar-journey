@@ -3,11 +3,10 @@ import { stations, IMAGES } from "@/lib/gameData";
 import { motion } from "framer-motion";
 
 export default function StationMap() {
-  const { goToStation, stationScores, answeredQuestions, score, totalQuestions, playerName, goToCertificate } = useGame();
+  const { goToStation, stationScores, answeredQuestions, score, totalQuestions, playerName, goToCertificate, getStationProgress } = useGame();
 
   const isStationComplete = (stationIndex: number) => {
-    const station = stations[stationIndex];
-    return station.questions.every((q) => answeredQuestions.has(q.id));
+    return getStationProgress(stationIndex).complete;
   };
 
   const isStationUnlocked = (stationIndex: number) => {
@@ -16,6 +15,17 @@ export default function StationMap() {
   };
 
   const allComplete = stations.every((_, i) => isStationComplete(i));
+  const totalAnswered = stations.reduce((sum, _, i) => sum + getStationProgress(i).answered, 0);
+  const overallPct = Math.round((totalAnswered / totalQuestions) * 100);
+
+  const handleStationClick = (stationId: number, stationIndex: number) => {
+    const unlocked = isStationUnlocked(stationIndex);
+    const complete = isStationComplete(stationIndex);
+    if (!unlocked) return;
+    // If station is complete, don't allow re-entry
+    if (complete) return;
+    goToStation(stationId);
+  };
 
   return (
     <div className="min-h-screen p-4" style={{ background: "linear-gradient(180deg, #87CEEB 0%, #E0F2FE 30%, #FFFBEB 60%, #FEF3C7 100%)" }}>
@@ -42,6 +52,32 @@ export default function StationMap() {
         </div>
       </div>
 
+      {/* Overall Progress Bar */}
+      <div className="max-w-lg mx-auto mb-4">
+        <div className="bg-white/70 backdrop-blur rounded-2xl px-4 py-3 shadow-md">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-bold text-gray-700" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+              التَّقَدُّمُ الْعَامُّ
+            </span>
+            <span className="text-sm font-bold text-amber-600" style={{ fontFamily: "'Fredoka', sans-serif" }}>
+              {overallPct}%
+            </span>
+          </div>
+          <div className="bg-gray-200 rounded-full h-4 overflow-hidden">
+            <motion.div
+              className="h-full rounded-full"
+              style={{ background: "linear-gradient(90deg, #FBBF24, #F59E0B, #D97706)" }}
+              initial={{ width: 0 }}
+              animate={{ width: `${overallPct}%` }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            />
+          </div>
+          <p className="text-xs text-gray-500 mt-1 text-center" style={{ fontFamily: "'Nunito', sans-serif" }}>
+            Overall Progress - {totalAnswered} of {totalQuestions} questions answered
+          </p>
+        </div>
+      </div>
+
       {/* Map Title */}
       <div className="text-center mb-6">
         <h2 className="text-2xl font-extrabold text-gray-800" style={{ fontFamily: "'Tajawal', sans-serif" }}>
@@ -57,8 +93,10 @@ export default function StationMap() {
         {stations.map((station, index) => {
           const complete = isStationComplete(index);
           const unlocked = isStationUnlocked(index);
+          const progress = getStationProgress(index);
           const stationScore = stationScores[index];
           const totalStationQ = station.questions.length;
+          const stationPct = Math.round((progress.answered / progress.total) * 100);
 
           return (
             <motion.div
@@ -75,10 +113,10 @@ export default function StationMap() {
               )}
 
               <motion.button
-                onClick={() => unlocked && goToStation(station.id)}
-                disabled={!unlocked}
-                whileHover={unlocked ? { scale: 1.03 } : {}}
-                whileTap={unlocked ? { scale: 0.97 } : {}}
+                onClick={() => handleStationClick(station.id, index)}
+                disabled={!unlocked || complete}
+                whileHover={unlocked && !complete ? { scale: 1.03 } : {}}
+                whileTap={unlocked && !complete ? { scale: 0.97 } : {}}
                 className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${
                   complete
                     ? "bg-white shadow-lg border-2 border-green-400"
@@ -104,10 +142,34 @@ export default function StationMap() {
                   <p className="text-xs text-gray-500" style={{ fontFamily: "'Nunito', sans-serif" }}>
                     {station.nameEn}
                   </p>
-                  {complete && (
-                    <p className="text-xs text-green-600 mt-0.5" style={{ fontFamily: "'Fredoka', sans-serif" }}>
-                      ⭐ {stationScore}/{totalStationQ}
-                    </p>
+                  {/* Progress info */}
+                  {unlocked && (
+                    <div className="mt-1.5">
+                      {complete ? (
+                        <div className="flex items-center gap-1.5 justify-end">
+                          <span className="text-xs text-green-600 font-bold" style={{ fontFamily: "'Fredoka', sans-serif" }}>
+                            ⭐ {stationScore}/{totalStationQ}
+                          </span>
+                          <span className="text-[10px] text-green-500 bg-green-100 px-2 py-0.5 rounded-full" style={{ fontFamily: "'Nunito', sans-serif" }}>
+                            Complete ✓
+                          </span>
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="flex items-center gap-2 justify-end">
+                            <span className="text-[11px] text-gray-500" style={{ fontFamily: "'Fredoka', sans-serif" }}>
+                              {progress.answered}/{progress.total}
+                            </span>
+                            <div className="w-16 bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                              <div
+                                className="h-full rounded-full transition-all duration-500"
+                                style={{ width: `${stationPct}%`, backgroundColor: station.color }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
 
