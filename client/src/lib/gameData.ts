@@ -237,10 +237,10 @@ export const stations: Station[] = [
       {
         id: 15,
         questionAr: "أَكْمِلْ: ______ تَكْتُبُ الْوَاجِبَ.",
-        questionEn: "Complete: ______ write the homework. (you - fem.)",
+        questionEn: "Complete: ______ write the homework. (you - masc.)",
         type: "mcq",
         options: [
-          { ar: "أَنْتِ", en: "anti (you - fem.)" },
+          { ar: "أَنْتَ", en: "anta (you - masc.)" },
           { ar: "هُوَ", en: "huwa (he)" },
           { ar: "أَنَا", en: "anā (I)" },
         ],
