@@ -13,7 +13,10 @@ import { Button } from "@/components/ui/button";
 import { SCHOOL_LOGO_BASE64 } from "@/lib/schoolLogo";
 
 // CDN URL for display (img tags), Base64 for canvas operations (no CORS issues)
-const SCHOOL_LOGO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663029980891/VGalWSshoNNhMYmE.png";
+const SCHOOL_LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663029980891/S9UfAnxEfs6upsP98hCzwU/school_logo_cropped_ae5db075.png";
+
+// Logo aspect ratio: 2.39:1 (width:height) - rectangular, not square
+const SCHOOL_LOGO_ASPECT_RATIO = 2.39;
 
 type LogoMode = "school" | "custom";
 
@@ -100,37 +103,49 @@ export default function QRGenerator() {
       // Step 3: Draw logo in the center
       try {
         const logoImg = await loadImage(currentLogoForCanvas);
-        const logoSize = Math.floor(qrSize * 0.28); // 28% of QR size for better visibility
-        const padding = Math.floor(logoSize * 0.15);
-        const totalSize = logoSize + padding * 2;
-        const x = Math.floor((qrSize - totalSize) / 2);
-        const y = Math.floor((qrSize - totalSize) / 2);
+        
+        // Determine if school logo (rectangular) or custom logo (keep as-is)
+        const isSchoolLogo = logoMode === "school";
+        const imgAspect = logoImg.naturalWidth / logoImg.naturalHeight;
+        const useAspect = isSchoolLogo ? SCHOOL_LOGO_ASPECT_RATIO : (imgAspect > 1 ? imgAspect : 1);
+        
+        // For rectangular logo: width is ~45% of QR, height adjusts by aspect ratio
+        // This makes the logo wider but shorter, taking less vertical QR space
+        const logoWidth = Math.floor(qrSize * (isSchoolLogo ? 0.42 : 0.28));
+        const logoHeight = Math.floor(logoWidth / useAspect);
+        
+        const paddingX = Math.floor(logoWidth * 0.08);
+        const paddingY = Math.floor(logoHeight * 0.15);
+        const totalWidth = logoWidth + paddingX * 2;
+        const totalHeight = logoHeight + paddingY * 2;
+        const x = Math.floor((qrSize - totalWidth) / 2);
+        const y = Math.floor((qrSize - totalHeight) / 2);
 
         // White rounded rectangle background
         ctx.fillStyle = "#FFFFFF";
         ctx.beginPath();
-        const radius = 10;
+        const radius = Math.floor(Math.min(totalWidth, totalHeight) * 0.08);
         ctx.moveTo(x + radius, y);
-        ctx.lineTo(x + totalSize - radius, y);
-        ctx.quadraticCurveTo(x + totalSize, y, x + totalSize, y + radius);
-        ctx.lineTo(x + totalSize, y + totalSize - radius);
-        ctx.quadraticCurveTo(x + totalSize, y + totalSize, x + totalSize - radius, y + totalSize);
-        ctx.lineTo(x + radius, y + totalSize);
-        ctx.quadraticCurveTo(x, y + totalSize, x, y + totalSize - radius);
+        ctx.lineTo(x + totalWidth - radius, y);
+        ctx.quadraticCurveTo(x + totalWidth, y, x + totalWidth, y + radius);
+        ctx.lineTo(x + totalWidth, y + totalHeight - radius);
+        ctx.quadraticCurveTo(x + totalWidth, y + totalHeight, x + totalWidth - radius, y + totalHeight);
+        ctx.lineTo(x + radius, y + totalHeight);
+        ctx.quadraticCurveTo(x, y + totalHeight, x, y + totalHeight - radius);
         ctx.lineTo(x, y + radius);
         ctx.quadraticCurveTo(x, y, x + radius, y);
         ctx.closePath();
         ctx.fill();
 
-        // Draw the logo image
-        ctx.drawImage(logoImg, x + padding, y + padding, logoSize, logoSize);
+        // Draw the logo image (rectangular for school, square for custom)
+        ctx.drawImage(logoImg, x + paddingX, y + paddingY, logoWidth, logoHeight);
       } catch (e) {
         console.warn("Could not load logo for QR overlay:", e);
       }
 
       return finalCanvas.toDataURL("image/png", 1.0);
     },
-    [url, currentLogoForCanvas, loadImage]
+    [url, currentLogoForCanvas, loadImage, logoMode]
   );
 
   const generateQR = async () => {
