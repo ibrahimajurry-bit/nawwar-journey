@@ -97,8 +97,8 @@ export default function QRGenerator() {
       // Step 3: Draw logo in the center
       try {
         const logoImg = await loadImage(currentLogoForCanvas);
-        const logoSize = Math.floor(qrSize * 0.22); // 22% of QR size
-        const padding = Math.floor(logoSize * 0.18);
+        const logoSize = Math.floor(qrSize * 0.28); // 28% of QR size for better visibility
+        const padding = Math.floor(logoSize * 0.15);
         const totalSize = logoSize + padding * 2;
         const x = Math.floor((qrSize - totalSize) / 2);
         const y = Math.floor((qrSize - totalSize) / 2);
