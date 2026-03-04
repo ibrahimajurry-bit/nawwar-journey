@@ -1,11 +1,13 @@
 /*
  * Educational Games Sub-page - Lists available educational games
  * Shows static games (Nawwar's Journey, Ishara Quiz) + dynamically saved quiz games from DB
+ * Owner can delete saved quizzes
  */
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowRight, Gamepad2, BookOpen, Sparkles, Loader2 } from "lucide-react";
+import { ArrowRight, Gamepad2, BookOpen, Sparkles, Loader2, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 const SCHOOL_LOGO = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663029980891/VGalWSshoNNhMYmE.png";
 
@@ -38,8 +40,15 @@ const quizGradients = [
 export default function GamesPage() {
   const [savedQuizzes, setSavedQuizzes] = useState<SavedQuiz[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState<number | null>(null);
+  const { user } = useAuth();
 
-  useEffect(() => {
+  // Check if current user is the owner
+  const isOwner = user?.openId === import.meta.env.VITE_APP_ID
+    ? true
+    : (user?.role === "admin");
+
+  const loadQuizzes = () => {
     fetch("/api/quiz/list")
       .then((res) => res.json())
       .then((data) => {
@@ -49,7 +58,29 @@ export default function GamesPage() {
         console.error("Failed to load quizzes:", err);
       })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadQuizzes();
   }, []);
+
+  const handleDelete = async (quizId: number, quizTitle: string) => {
+    if (!confirm(`هل أنت متأكد من حذف "${quizTitle}"؟`)) return;
+    setDeleting(quizId);
+    try {
+      const res = await fetch(`/api/quiz/${quizId}`, { method: "DELETE" });
+      if (res.ok) {
+        setSavedQuizzes((prev) => prev.filter((q) => q.id !== quizId));
+      } else {
+        const data = await res.json();
+        alert(data.error || "فشل الحذف");
+      }
+    } catch (err) {
+      alert("فشل الاتصال بالسيرفر");
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   return (
     <div dir="rtl" className="min-h-screen flex flex-col bg-gradient-to-b from-[#f0f7f0] via-white to-[#f0f4f8]">
@@ -165,8 +196,8 @@ export default function GamesPage() {
             const gradientClass = quizGradients[idx % quizGradients.length];
             return (
               <motion.div key={quiz.id} custom={idx + 2} variants={fadeUp} initial="hidden" animate="visible">
-                <a href={quiz.storageUrl} target="_blank" rel="noopener noreferrer">
-                  <div className="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer border border-gray-100 hover:border-purple-200 hover:-translate-y-1">
+                <div className="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-purple-200 hover:-translate-y-1">
+                  <a href={quiz.storageUrl} target="_blank" rel="noopener noreferrer">
                     <div className={`h-40 bg-gradient-to-br ${gradientClass} flex items-center justify-center relative overflow-hidden`}>
                       <div className="absolute inset-0 opacity-20">
                         <div className="absolute top-4 right-4 w-20 h-20 rounded-full bg-white/20 blur-2xl" />
@@ -197,8 +228,27 @@ export default function GamesPage() {
                         <span className="transform rotate-180">→</span>
                       </div>
                     </div>
-                  </div>
-                </a>
+                  </a>
+                  {/* Delete button - owner only */}
+                  {isOwner && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleDelete(quiz.id, quiz.title);
+                      }}
+                      disabled={deleting === quiz.id}
+                      className="absolute top-3 left-3 z-20 bg-red-500/90 hover:bg-red-600 text-white rounded-full p-2 shadow-lg transition-all opacity-0 group-hover:opacity-100"
+                      title="حذف اللعبة"
+                    >
+                      {deleting === quiz.id ? (
+                        <Loader2 size={16} className="animate-spin" />
+                      ) : (
+                        <Trash2 size={16} />
+                      )}
+                    </button>
+                  )}
+                </div>
               </motion.div>
             );
           })}

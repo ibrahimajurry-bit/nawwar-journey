@@ -34,3 +34,6 @@
 - [x] Auto-save generated games to server instead of download
 - [x] Remove all HTML/file-type/Netlify/download mentions from UI
 - [x] Update header badge from 'No Internet' to 'مدعوم بالذكاء الاصطناعي'
+- [x] Add owner-only delete API for saved quizzes
+- [x] Add delete button on GamesPage visible only to owner
+- [x] Auto-save school info (name AR/EN, logo) in localStorage in quiz generator

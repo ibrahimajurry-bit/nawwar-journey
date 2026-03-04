@@ -112,6 +112,43 @@ async function startServer() {
     }
   });
 
+  // REST API endpoint for deleting a quiz (owner only)
+  app.delete('/api/quiz/:id', async (req, res) => {
+    try {
+      // Check if requester is the owner
+      const { sdk } = await import('./sdk');
+      let user = null;
+      try {
+        user = await sdk.authenticateRequest(req);
+      } catch (e) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      if (!user || user.openId !== (process.env.OWNER_OPEN_ID || '')) {
+        return res.status(403).json({ error: 'Only the site owner can delete quizzes' });
+      }
+
+      const quizId = parseInt(req.params.id);
+      if (isNaN(quizId)) {
+        return res.status(400).json({ error: 'Invalid quiz ID' });
+      }
+
+      const { getDb } = await import('../db');
+      const { generatedQuizzes } = await import('../../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+
+      const db = await getDb();
+      if (!db) {
+        return res.status(500).json({ error: 'Database not available' });
+      }
+
+      await db.delete(generatedQuizzes).where(eq(generatedQuizzes.id, quizId));
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[Quiz Delete Error]', error);
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  });
+
   // tRPC API
   app.use(
     "/api/trpc",

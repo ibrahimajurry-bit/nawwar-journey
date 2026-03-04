@@ -533,6 +533,48 @@ const LOGO_B64 = '/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAA
 let customLogoB64 = null;
 let customLogoMime = 'image/jpeg';
 
+// ── Auto-save/load school info from localStorage ──
+function saveSchoolInfo() {
+    try {
+        const info = {
+            schoolAr: document.getElementById('school-name-ar').value,
+            schoolEn: document.getElementById('school-name-en').value,
+            logoB64: customLogoB64,
+            logoMime: customLogoMime
+        };
+        localStorage.setItem('quizgen_school_info', JSON.stringify(info));
+    } catch(e) {}
+}
+
+function loadSchoolInfo() {
+    try {
+        const saved = localStorage.getItem('quizgen_school_info');
+        if (!saved) return;
+        const info = JSON.parse(saved);
+        if (info.schoolAr) document.getElementById('school-name-ar').value = info.schoolAr;
+        if (info.schoolEn) document.getElementById('school-name-en').value = info.schoolEn;
+        if (info.logoB64) {
+            customLogoB64 = info.logoB64;
+            customLogoMime = info.logoMime || 'image/jpeg';
+            const dataUrl = 'data:' + customLogoMime + ';base64,' + customLogoB64;
+            const area = document.getElementById('logo-upload-area');
+            area.classList.add('has-logo');
+            area.innerHTML = `
+                <div>
+                    <img src="${dataUrl}" class="logo-preview-img" alt="Logo">
+                    <div class="logo-preview-label">✅ لوجو محفوظ — انقر لتغييره</div>
+                </div>`;
+        }
+    } catch(e) {}
+}
+
+// Auto-save on input change
+document.addEventListener('DOMContentLoaded', function() {
+    loadSchoolInfo();
+    document.getElementById('school-name-ar').addEventListener('input', saveSchoolInfo);
+    document.getElementById('school-name-en').addEventListener('input', saveSchoolInfo);
+});
+
 function handleLogoUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -548,6 +590,7 @@ function handleLogoUpload(event) {
                 <img src="${dataUrl}" class="logo-preview-img" alt="Logo">
                 <div class="logo-preview-label">✅ تم رفع اللوجو — ${file.name}</div>
             </div>`;
+        saveSchoolInfo();
     };
     reader.readAsDataURL(file);
 }
