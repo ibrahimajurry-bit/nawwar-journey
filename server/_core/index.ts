@@ -60,6 +60,58 @@ async function startServer() {
       res.status(500).json({ error: error.message || 'Internal server error' });
     }
   });
+  // REST API endpoint for saving generated quiz to S3 + DB
+  app.post('/api/quiz/save', async (req, res) => {
+    try {
+      const { title, grade, htmlContent } = req.body;
+      if (!title || !grade || !htmlContent) {
+        return res.status(400).json({ error: 'title, grade, and htmlContent are required' });
+      }
+      const { storagePut } = await import('../storage');
+      const { getDb } = await import('../db');
+      const { generatedQuizzes } = await import('../../drizzle/schema');
+      const { nanoid } = await import('nanoid');
+      
+      const fileKey = `quizzes/${nanoid(12)}.html`;
+      const { url } = await storagePut(fileKey, htmlContent, 'text/html; charset=utf-8');
+      
+      const db = await getDb();
+      if (db) {
+        await db.insert(generatedQuizzes).values({
+          title,
+          grade,
+          storageUrl: url,
+          storageKey: fileKey,
+        });
+      }
+      
+      res.json({ success: true, url });
+    } catch (error: any) {
+      console.error('[Quiz Save Error]', error);
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  });
+
+  // REST API endpoint for listing generated quizzes
+  app.get('/api/quiz/list', async (req, res) => {
+    try {
+      const { getDb } = await import('../db');
+      const { generatedQuizzes } = await import('../../drizzle/schema');
+      const { desc } = await import('drizzle-orm');
+      
+      const db = await getDb();
+      if (!db) {
+        return res.json({ quizzes: [] });
+      }
+      
+      const quizzes = await db.select().from(generatedQuizzes).orderBy(desc(generatedQuizzes.createdAt));
+      res.json({ quizzes });
+    } catch (error: any) {
+      console.error('[Quiz List Error]', error);
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  });
+
   // tRPC API
   app.use(
     "/api/trpc",

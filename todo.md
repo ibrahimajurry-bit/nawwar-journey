@@ -19,3 +19,10 @@
 - [x] Upgrade project to full-stack (web-db-user)
 - [x] Create backend API route for AI quiz generation using Forge API
 - [x] Connect Quiz Generator to backend Forge AI API
+- [x] Add logo upload for certificate in quiz generator
+- [x] Replace grade grid with dropdown (Grade 1-12, no sections)
+- [x] Save generated games to S3 instead of downloading HTML
+- [x] Display generated games automatically in Games page as cards
+- [x] Saved quizzes open directly from S3 URL (no HTML mention visible to user)
+- [x] Remove all HTML/file-type references from UI - no technical terms visible
+- [x] Create database table for generated quizzes metadata

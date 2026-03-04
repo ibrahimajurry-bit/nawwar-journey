@@ -25,4 +25,15 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+// Generated quizzes table - stores AI-generated educational games
+export const generatedQuizzes = mysqlTable("generated_quizzes", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  grade: varchar("grade", { length: 50 }).notNull(),
+  storageUrl: text("storageUrl").notNull(),
+  storageKey: varchar("storageKey", { length: 512 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type GeneratedQuiz = typeof generatedQuizzes.$inferSelect;
+export type InsertGeneratedQuiz = typeof generatedQuizzes.$inferInsert;

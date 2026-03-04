@@ -1,12 +1,21 @@
 /*
  * Educational Games Sub-page - Lists available educational games
- * Currently: Nawwar's Journey
+ * Shows static games (Nawwar's Journey, Ishara Quiz) + dynamically saved quiz games from DB
  */
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowRight, Gamepad2, BookOpen } from "lucide-react";
+import { ArrowRight, Gamepad2, BookOpen, Sparkles, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const SCHOOL_LOGO = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663029980891/VGalWSshoNNhMYmE.png";
+
+interface SavedQuiz {
+  id: number;
+  title: string;
+  grade: string;
+  storageUrl: string;
+  createdAt: string;
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -17,7 +26,31 @@ const fadeUp = {
   }),
 };
 
+// Gradient colors for generated quiz cards
+const quizGradients = [
+  "from-violet-500 via-purple-500 to-indigo-600",
+  "from-rose-500 via-pink-500 to-fuchsia-600",
+  "from-cyan-500 via-sky-500 to-blue-600",
+  "from-lime-500 via-green-500 to-emerald-600",
+  "from-amber-500 via-yellow-500 to-orange-500",
+];
+
 export default function GamesPage() {
+  const [savedQuizzes, setSavedQuizzes] = useState<SavedQuiz[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/quiz/list")
+      .then((res) => res.json())
+      .then((data) => {
+        setSavedQuizzes(data.quizzes || []);
+      })
+      .catch((err) => {
+        console.error("Failed to load quizzes:", err);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <div dir="rtl" className="min-h-screen flex flex-col bg-gradient-to-b from-[#f0f7f0] via-white to-[#f0f4f8]">
       {/* Header */}
@@ -127,18 +160,77 @@ export default function GamesPage() {
             </Link>
           </motion.div>
 
-          {/* Placeholder */}
-          <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
-            <div className="relative bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 overflow-hidden h-full min-h-[280px] flex items-center justify-center">
-              <div className="text-center p-6">
-                <div className="text-4xl mb-3 opacity-40">🎮</div>
-                <p className="text-gray-400 font-medium" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                  قريبًا...
-                </p>
-                <p className="text-gray-300 text-sm mt-1">Coming Soon</p>
+          {/* Dynamically generated quiz games from database */}
+          {savedQuizzes.map((quiz, idx) => {
+            const gradientClass = quizGradients[idx % quizGradients.length];
+            return (
+              <motion.div key={quiz.id} custom={idx + 2} variants={fadeUp} initial="hidden" animate="visible">
+                <a href={quiz.storageUrl} target="_blank" rel="noopener noreferrer">
+                  <div className="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer border border-gray-100 hover:border-purple-200 hover:-translate-y-1">
+                    <div className={`h-40 bg-gradient-to-br ${gradientClass} flex items-center justify-center relative overflow-hidden`}>
+                      <div className="absolute inset-0 opacity-20">
+                        <div className="absolute top-4 right-4 w-20 h-20 rounded-full bg-white/20 blur-2xl" />
+                        <div className="absolute bottom-4 left-4 w-16 h-16 rounded-full bg-white/15 blur-2xl" />
+                      </div>
+                      <div className="text-center relative z-10">
+                        <div className="text-5xl mb-2">🎮</div>
+                        <p className="text-white font-bold text-lg leading-tight px-4" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                          {quiz.title}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="p-5">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Sparkles size={16} className="text-purple-500" />
+                        <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                          {quiz.grade}
+                        </span>
+                        <span className="text-xs text-gray-400 mr-auto" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                          {new Date(quiz.createdAt).toLocaleDateString("ar-SA")}
+                        </span>
+                      </div>
+                      <p className="text-gray-600 text-sm leading-relaxed" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                        لعبة تعليمية تفاعلية مع مؤقت وشهادة إتمام
+                      </p>
+                      <div className="mt-3 flex items-center gap-2 text-purple-500 font-medium text-sm group-hover:gap-3 transition-all" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                        <span>ابدأ اللعب</span>
+                        <span className="transform rotate-180">→</span>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </motion.div>
+            );
+          })}
+
+          {/* Loading indicator */}
+          {loading && (
+            <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
+              <div className="relative bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 overflow-hidden h-full min-h-[280px] flex items-center justify-center">
+                <div className="text-center p-6">
+                  <Loader2 className="animate-spin text-gray-400 mx-auto mb-3" size={32} />
+                  <p className="text-gray-400 font-medium" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                    جارٍ التحميل...
+                  </p>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
+
+          {/* Placeholder - only show if no saved quizzes and not loading */}
+          {!loading && savedQuizzes.length === 0 && (
+            <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
+              <div className="relative bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 overflow-hidden h-full min-h-[280px] flex items-center justify-center">
+                <div className="text-center p-6">
+                  <div className="text-4xl mb-3 opacity-40">🎮</div>
+                  <p className="text-gray-400 font-medium" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                    قريبًا...
+                  </p>
+                  <p className="text-gray-300 text-sm mt-1">Coming Soon</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </motion.div>
       </main>
 
