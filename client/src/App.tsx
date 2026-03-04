@@ -12,6 +12,7 @@ import AppsPage from "./pages/AppsPage";
 import GamesPage from "./pages/GamesPage";
 import StoriesPage from "./pages/StoriesPage";
 import IsharaQuiz from "./pages/IsharaQuiz";
+import QuizGeneratorApp from "./pages/QuizGeneratorApp";
 
 function Router() {
   return (
@@ -23,6 +24,7 @@ function Router() {
       <Route path={"/games/nawwar"} component={Home} />
       <Route path={"/games/ishara"} component={IsharaQuiz} />
       <Route path={"/apps/qr-generator"} component={QRGenerator} />
+      <Route path={"/apps/quiz-generator"} component={QuizGeneratorApp} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
