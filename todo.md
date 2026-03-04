@@ -29,3 +29,8 @@
 - [x] Fix: uploaded custom logo not appearing in certificate - always shows default school logo
 - [x] Add school name (Arabic + English) input fields to quiz generator form
 - [x] Pass school name to buildQuizHTML and use in quiz header + certificate
+- [x] Replace quiz_generator.html with user's new file (v6) with full logo+school name support
+- [x] Connect AI parsing to Forge API (/api/quiz/generate) with local fallback
+- [x] Auto-save generated games to server instead of download
+- [x] Remove all HTML/file-type/Netlify/download mentions from UI
+- [x] Update header badge from 'No Internet' to 'مدعوم بالذكاء الاصطناعي'
