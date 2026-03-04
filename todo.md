@@ -26,3 +26,6 @@
 - [x] Saved quizzes open directly from S3 URL (no HTML mention visible to user)
 - [x] Remove all HTML/file-type references from UI - no technical terms visible
 - [x] Create database table for generated quizzes metadata
+- [x] Fix: uploaded custom logo not appearing in certificate - always shows default school logo
+- [x] Add school name (Arabic + English) input fields to quiz generator form
+- [x] Pass school name to buildQuizHTML and use in quiz header + certificate

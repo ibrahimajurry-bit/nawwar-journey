@@ -373,6 +373,17 @@ textarea { resize: vertical; min-height: 200px; line-height: 1.7; }
                 </div>
             </div>
 
+            <div class="form-row cols-2">
+                <div>
+                    <label>اسم المدرسة بالعربية</label>
+                    <input type="text" id="school-name-ar" placeholder="مثال: مدرسة الإبداع العلمي الدولية" value="مدرسة الإبداع العلمي الدولية">
+                </div>
+                <div>
+                    <label>اسم المدرسة بالإنجليزية</label>
+                    <input type="text" id="school-name-en" placeholder="مثال: Creative Science School" value="Creative Science School" dir="ltr">
+                </div>
+            </div>
+
             <label>لوجو المدرسة (للشهادة)</label>
             <div class="logo-upload-area" id="logo-upload-area" onclick="document.getElementById('logo-file-input').click()">
                 <div id="logo-preview-container">
@@ -487,13 +498,29 @@ function handleLogoUpload(event) {
     const reader = new FileReader();
     reader.onload = function(e) {
         uploadedLogoB64 = e.target.result;
-        const container = document.getElementById('logo-preview-container');
-        container.innerHTML = `
-            <img src="${uploadedLogoB64}" class="logo-preview" alt="لوجو المدرسة">
-            <div class="logo-upload-text" style="color: var(--green-dark);">✅ تم رفع اللوجو بنجاح</div>
-            <div class="logo-upload-hint">اضغط لتغيير اللوجو</div>
-        `;
+        console.log('[Logo Upload] Logo loaded, length:', uploadedLogoB64.length);
+        var container = document.getElementById('logo-preview-container');
+        // Use DOM manipulation instead of innerHTML to avoid template literal issues
+        container.textContent = '';
+        var img = document.createElement('img');
+        img.src = uploadedLogoB64;
+        img.className = 'logo-preview';
+        img.alt = 'لوجو المدرسة';
+        container.appendChild(img);
+        var txt = document.createElement('div');
+        txt.className = 'logo-upload-text';
+        txt.style.color = 'var(--green-dark)';
+        txt.textContent = '✅ تم رفع اللوجو بنجاح';
+        container.appendChild(txt);
+        var hint = document.createElement('div');
+        hint.className = 'logo-upload-hint';
+        hint.textContent = 'اضغط لتغيير اللوجو';
+        container.appendChild(hint);
         document.getElementById('logo-upload-area').classList.add('has-logo');
+    };
+    reader.onerror = function(e) {
+        console.error('[Logo Upload] Error reading file:', e);
+        alert('حدث خطأ أثناء قراءة الملف');
     };
     reader.readAsDataURL(file);
 }
@@ -531,6 +558,8 @@ async function generateQuiz() {
     const title    = document.getElementById('lesson-title').value.trim();
     const grade    = document.getElementById('grade-name').value;
     const qText    = document.getElementById('questions-text').value.trim();
+    const schoolAr = document.getElementById('school-name-ar').value.trim();
+    const schoolEn = document.getElementById('school-name-en').value.trim();
 
     if (!title)  { alert('أدخل عنوان الدرس'); return; }
     if (!grade)  { alert('اختر الصف الدراسي'); return; }
@@ -548,7 +577,9 @@ async function generateQuiz() {
         
         const logoB64 = getLogoB64ForQuiz();
         const logoDataUrl = getLogoDataUrl();
-        generatedHTML = buildQuizHTML(title, grade, parsed, logoB64, logoDataUrl);
+        console.log('[Generate] uploadedLogoB64 is:', uploadedLogoB64 ? 'SET (length: ' + uploadedLogoB64.length + ')' : 'NULL (using default)');
+        console.log('[Generate] logoDataUrl starts with:', logoDataUrl.substring(0, 50));
+        generatedHTML = buildQuizHTML(title, grade, parsed, logoB64, logoDataUrl, schoolAr, schoolEn);
         
         showStatus('loading', '💾 جارٍ حفظ اللعبة...', true);
         
@@ -624,7 +655,9 @@ ${rawText}
 // ─────────────────────────────────────────────
 //  BUILD COMPLETE QUIZ HTML
 // ─────────────────────────────────────────────
-function buildQuizHTML(lessonTitle, gradeName, questions, logoB64, logoDataUrl) {
+function buildQuizHTML(lessonTitle, gradeName, questions, logoB64, logoDataUrl, schoolNameAr, schoolNameEn) {
+    schoolNameAr = schoolNameAr || 'مدرسة الإبداع العلمي الدولية';
+    schoolNameEn = schoolNameEn || 'Creative Science School';
     const questionsJSON = JSON.stringify(questions);
 
     return `<!DOCTYPE html>
@@ -716,8 +749,8 @@ body{font-family:'Cairo','Tajawal',Tahoma,sans-serif;background:linear-gradient(
   <div class="school-header">
     <img src="${logoDataUrl}" class="school-logo" alt="Logo">
     <div>
-      <div class="school-name">مدرسة الإبداع العلمي الدولية</div>
-      <div class="school-sub">Creative Science School | مويلح</div>
+      <div class="school-name">${schoolNameAr}</div>
+      <div class="school-sub">${schoolNameEn}</div>
     </div>
     <div class="lesson-badge">📖 ${lessonTitle}</div>
   </div>
@@ -778,6 +811,8 @@ body{font-family:'Cairo','Tajawal',Tahoma,sans-serif;background:linear-gradient(
 
 <script>
 const LOGO_DATA_URL = '${logoDataUrl}';
+const SCHOOL_NAME_AR = '${schoolNameAr}';
+const SCHOOL_NAME_EN = '${schoolNameEn}';
 const questions = ${questionsJSON};
 let currentQuestion=0, score=0, studentName='';
 let timerInterval=null, timeLeft=30, answered=false;
@@ -921,8 +956,8 @@ function downloadCertificate(){
   logoImg.onload=function(){
     ctx.save();ctx.beginPath();ctx.roundRect(65,65,110,110,14);ctx.clip();ctx.drawImage(logoImg,65,65,110,110);ctx.restore();
     ctx.strokeStyle='rgba(27,107,47,.2)';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(65,65,110,110,14);ctx.stroke();
-    ctx.fillStyle='#0d3d1a';ctx.font='bold 28px Cairo, Arial';ctx.textAlign='center';ctx.fillText('مدرسة الإبداع العلمي الدولية',540,100);
-    ctx.fillStyle='#1641a3';ctx.font='bold 16px Cairo, Arial';ctx.fillText('Creative Science School | مويلح',540,128);
+    ctx.fillStyle='#0d3d1a';ctx.font='bold 28px Cairo, Arial';ctx.textAlign='center';ctx.fillText(SCHOOL_NAME_AR,540,100);
+    ctx.fillStyle='#1641a3';ctx.font='bold 16px Cairo, Arial';ctx.fillText(SCHOOL_NAME_EN,540,128);
     const divGrad=ctx.createLinearGradient(180,150,820,150);divGrad.addColorStop(0,'transparent');divGrad.addColorStop(.3,'#1b6b2f');divGrad.addColorStop(.7,'#1641a3');divGrad.addColorStop(1,'transparent');
     ctx.fillStyle=divGrad;ctx.fillRect(180,155,640,3);
     ctx.fillStyle='#1a1a2e';ctx.font='bold 38px Cairo, Arial';ctx.fillText('شهادة إتمام اختبار',500,215);
@@ -944,6 +979,16 @@ function downloadCertificate(){
     ctx.fillStyle='#9ca3af';ctx.font='14px Cairo, Arial';ctx.fillText(now.toLocaleDateString('ar-SA',{year:'numeric',month:'long',day:'numeric',timeZone:'Asia/Dubai'}),500,598);
     ctx.font='20px Arial';ctx.fillText('⭐ ⭐ ⭐',500,630);
     const link=document.createElement('a');link.download=\`شهادة-\${studentName}.png\`;link.href=canvas.toDataURL('image/png',.95);link.click();
+  };
+  logoImg.onerror=function(){
+    console.error('Logo failed to load, drawing certificate without logo');
+    ctx.fillStyle='#0d3d1a';ctx.font='bold 28px Cairo, Arial';ctx.textAlign='center';ctx.fillText(SCHOOL_NAME_AR,540,100);
+    ctx.fillStyle='#1641a3';ctx.font='bold 16px Cairo, Arial';ctx.fillText(SCHOOL_NAME_EN,540,128);
+    const divGrad2=ctx.createLinearGradient(180,150,820,150);divGrad2.addColorStop(0,'transparent');divGrad2.addColorStop(.3,'#1b6b2f');divGrad2.addColorStop(.7,'#1641a3');divGrad2.addColorStop(1,'transparent');
+    ctx.fillStyle=divGrad2;ctx.fillRect(180,155,640,3);
+    ctx.fillStyle='#1a1a2e';ctx.font='bold 38px Cairo, Arial';ctx.fillText('\u0634\u0647\u0627\u062f\u0629 \u0625\u062a\u0645\u0627\u0645 \u0627\u062e\u062a\u0628\u0627\u0631',500,215);
+    ctx.fillStyle='#6b7280';ctx.font='18px Cairo, Arial';ctx.fillText('Quiz Completion Certificate',500,245);
+    const link2=document.createElement('a');link2.download=\`\u0634\u0647\u0627\u062f\u0629-\${studentName}.png\`;link2.href=canvas.toDataURL('image/png',.95);link2.click();
   };
   logoImg.src=LOGO_DATA_URL;
 }
