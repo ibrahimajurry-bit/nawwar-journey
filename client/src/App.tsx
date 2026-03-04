@@ -13,8 +13,8 @@ import GamesPage from "./pages/GamesPage";
 import StoriesPage from "./pages/StoriesPage";
 import IsharaQuiz from "./pages/IsharaQuiz";
 import QuizGeneratorApp from "./pages/QuizGeneratorApp";
-
 function Router() {
+  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Landing} />

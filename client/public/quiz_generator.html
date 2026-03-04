@@ -538,13 +538,6 @@ async function generateQuiz() {
 }
 
 async function parseQuestionsWithAI(rawText, title) {
-    const FORGE_API_KEY = window.__FORGE_CONFIG__?.apiKey || '';
-    const FORGE_API_URL = window.__FORGE_CONFIG__?.apiUrl || '';
-    
-    if (!FORGE_API_KEY || !FORGE_API_URL) {
-        throw new Error('خدمة الذكاء الاصطناعي غير متاحة حالياً. يرجى المحاولة لاحقاً.');
-    }
-    
     const prompt = `أنت مساعد تعليمي. حوّل الأسئلة التالية إلى JSON دقيق.
 
 القواعد:
@@ -558,26 +551,21 @@ ${rawText}
 
 أخرج مصفوفة JSON فقط: [{"id":1,"type":"mc","question":"...","options":["...","...","..."],"correct":1}, ...]`;
 
-    const res = await fetch(FORGE_API_URL + '/chat/completions', {
+    const res = await fetch('/api/quiz/generate', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + FORGE_API_KEY
+            'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-            model: 'anthropic/claude-sonnet-4-20250514',
-            max_tokens: 4000,
-            messages: [{ role: 'user', content: prompt }]
-        })
+        body: JSON.stringify({ prompt })
     });
 
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error?.message || `HTTP ${res.status}`);
+        throw new Error(err.error || `HTTP ${res.status}`);
     }
 
     const data = await res.json();
-    const text = data.choices?.[0]?.message?.content || '';
+    const text = data.content || '';
     const clean = text.replace(/```json|```/gi, '').trim();
     
     try {
@@ -969,23 +957,9 @@ function retryQuiz(){
 </html>`;
 }
 
-// Listen for config from parent React app
-window.addEventListener('message', function(event) {
-    if (event.data && event.data.type === 'FORGE_CONFIG') {
-        window.__FORGE_CONFIG__ = {
-            apiKey: event.data.apiKey,
-            apiUrl: event.data.apiUrl
-        };
-    }
-});
-
 // Init
 window.onload = () => {
     buildChips();
-    // Request config from parent
-    if (window.parent !== window) {
-        window.parent.postMessage({ type: 'QUIZ_GEN_READY' }, '*');
-    }
 };
 </script>
 </body>

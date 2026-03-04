@@ -1,9 +1,21 @@
 # Todo
 
-- [ ] Upload school logo SVG to CDN
-- [ ] Restructure App.tsx with routes: / (landing), /games/nawwar (game), /apps/qr-generator (QR tool)
-- [ ] Create main landing page with two sections: Educational Games + ASL Apps
-- [ ] Build QR Code Generator page with school branding, logo embedding, download PNG
-- [ ] Install QR code library (qrcode.react or similar)
-- [ ] Test all pages and navigation
-- [ ] Save checkpoint and deliver
+- [x] Upload school logo SVG to CDN
+- [x] Restructure App.tsx with routes: / (landing), /games/nawwar (game), /apps/qr-generator (QR tool)
+- [x] Create main landing page with two sections: Educational Games + ASL Apps
+- [x] Build QR Code Generator page with school branding, logo embedding, download PNG
+- [x] Install QR code library (qrcode.react or similar)
+- [x] Test all pages and navigation
+- [x] Save checkpoint and deliver
+- [x] Add two logo options in QR Generator: school logo (auto) + custom upload
+- [x] Crop school logo to rectangular shape for QR code center
+- [x] Fix logo size in QR code - make it smaller and rectangular
+- [x] Redesign home page with 3 category icons (ASL Apps, Games, Stories)
+- [x] Create sub-pages for each category (AppsPage, GamesPage, StoriesPage)
+- [x] Remove bird mascot from landing page
+- [x] Add Ishara Quiz game to Educational Games section
+- [x] Add Quiz Generator app to ASL Applications section
+- [x] Remove Anthropic API dependency from Quiz Generator
+- [x] Upgrade project to full-stack (web-db-user)
+- [x] Create backend API route for AI quiz generation using Forge API
+- [x] Connect Quiz Generator to backend Forge AI API
