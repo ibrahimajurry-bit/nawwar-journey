@@ -37,8 +37,27 @@ export default function OwnerLogin() {
             </div>
           </div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Nawwar Journey</h1>
-          <p className="text-gray-600 mb-1">نوّار جيرني</p>
-          <p className="text-sm text-gray-500">Private Platform | منصة خاصة</p>
+          <p className="text-gray-600 mb-4 text-lg">رحلة نوّار</p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <p className="text-sm text-gray-700 mb-3"><strong>Platform Features:</strong></p>
+            <ul className="text-xs text-gray-600 space-y-1 text-left">
+              <li>✓ Interactive Educational Games</li>
+              <li>✓ QR Code Generator</li>
+              <li>✓ Illustrated Stories</li>
+              <li>✓ ASL Applications</li>
+            </ul>
+            <p className="text-xs text-gray-700 mt-3 pt-3 border-t border-blue-200">
+              <strong>للاشتراك تواصل مع إدارة نوار جيرني</strong>
+            </p>
+            <a
+              href="https://wa.me/971542897175?text=Hello%20Nawwar%20Journey%20Admin"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-2 text-green-600 hover:text-green-700 font-semibold text-xs"
+            >
+              📱 WhatsApp: +971 54 289 7175
+            </a>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -86,7 +105,7 @@ export default function OwnerLogin() {
 
         <div className="mt-6 pt-6 border-t border-gray-200">
           <p className="text-xs text-gray-500 text-center">
-            This is a private platform. Only authorized users can access.
+            Authorized users only | المستخدمون المصرح لهم فقط
           </p>
         </div>
       </Card>
