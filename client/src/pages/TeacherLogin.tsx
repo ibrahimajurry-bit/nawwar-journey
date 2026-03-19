@@ -20,18 +20,20 @@ export default function TeacherLogin({ onLogin }: TeacherLoginProps) {
       return;
     }
 
-    // Simple validation - check against localStorage stored credentials
-    const storedUsers = JSON.parse(localStorage.getItem("teacherUsers") || "{}");
-    
-    if (storedUsers[username] && storedUsers[username] === password) {
+    // Registered accounts
+    const accounts: Record<string, { password: string; role: "owner" | "teacher" }> = {
+      "Ayaali": { password: "aya1234", role: "owner" },
+      "Ayaali123": { password: "Ayaali123", role: "teacher" },
+      "Ahmed123": { password: "Ahmed123", role: "teacher" },
+    };
+
+    const account = accounts[username];
+    if (account && account.password === password) {
       localStorage.setItem("teacherLoggedIn", "true");
       localStorage.setItem("teacherName", username);
-      onLogin(username);
-    } else if (username === "Ayaali" && password === "aya1234") {
-      // Owner login
-      localStorage.setItem("teacherLoggedIn", "true");
-      localStorage.setItem("teacherName", username);
-      localStorage.setItem("isOwner", "true");
+      if (account.role === "owner") {
+        localStorage.setItem("isOwner", "true");
+      }
       onLogin(username);
     } else {
       setError("بيانات الدخول غير صحيحة | Invalid credentials");
