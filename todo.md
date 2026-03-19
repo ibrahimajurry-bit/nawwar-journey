@@ -37,3 +37,5 @@
 - [x] Add owner-only delete API for saved quizzes
 - [x] Add delete button on GamesPage visible only to owner
 - [x] Auto-save school info (name AR/EN, logo) in localStorage in quiz generator
+- [x] Rollback all March 18-19 changes to restore original site
+- [x] Add simple teacher login page (username + password + WhatsApp QR for credentials)

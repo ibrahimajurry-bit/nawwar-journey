@@ -5,6 +5,7 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { GameProvider } from "./contexts/GameContext";
+import { useEffect, useState } from "react";
 import Landing from "./pages/Landing";
 import Home from "./pages/Home";
 import QRGenerator from "./pages/QRGenerator";
@@ -13,22 +14,54 @@ import GamesPage from "./pages/GamesPage";
 import StoriesPage from "./pages/StoriesPage";
 import IsharaQuiz from "./pages/IsharaQuiz";
 import QuizGeneratorApp from "./pages/QuizGeneratorApp";
-function Router() {
-  // make sure to consider if you need authentication for certain routes
+import TeacherLogin from "./pages/TeacherLogin";
+
+function ProtectedRouter() {
   return (
     <Switch>
-      <Route path={"/"} component={Landing} />
-      <Route path={"/apps"} component={AppsPage} />
-      <Route path={"/games"} component={GamesPage} />
-      <Route path={"/stories"} component={StoriesPage} />
-      <Route path={"/games/nawwar"} component={Home} />
-      <Route path={"/games/ishara"} component={IsharaQuiz} />
-      <Route path={"/apps/qr-generator"} component={QRGenerator} />
-      <Route path={"/apps/quiz-generator"} component={QuizGeneratorApp} />
-      <Route path={"/404"} component={NotFound} />
+      <Route path="/" component={Landing} />
+      <Route path="/apps" component={AppsPage} />
+      <Route path="/games" component={GamesPage} />
+      <Route path="/stories" component={StoriesPage} />
+      <Route path="/games/nawwar" component={Home} />
+      <Route path="/games/ishara" component={IsharaQuiz} />
+      <Route path="/apps/qr-generator" component={QRGenerator} />
+      <Route path="/apps/quiz-generator" component={QuizGeneratorApp} />
+      <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
   );
+}
+
+function Router() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loggedIn = localStorage.getItem("teacherLoggedIn") === "true";
+    setIsLoggedIn(loggedIn);
+    setIsLoading(false);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a6b3c] via-[#1e7a44] to-[#1b5e8a]">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <TeacherLogin
+        onLogin={() => {
+          setIsLoggedIn(true);
+        }}
+      />
+    );
+  }
+
+  return <ProtectedRouter />;
 }
 
 function App() {
