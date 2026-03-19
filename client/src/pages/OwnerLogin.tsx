@@ -109,9 +109,10 @@ export default function OwnerLogin() {
               </p>
               <div className="flex justify-center mb-3">
                 <img
-                  src="https://d2xsxph8kpxj0f.cloudfront.net/310419663029980891/S9UfAnxEfs6upsP98hCzwU/whatsapp-qr_ac4b22f9.png"
+                  src="https://d2xsxph8kpxj0f.cloudfront.net/310419663029980891/S9UfAnxEfs6upsP98hCzwU/whatsapp_qr_cb063965.png"
                   alt="WhatsApp QR Code"
-                  className="w-32 h-32 rounded-lg border-2 border-green-400"
+                  className="w-32 h-32 rounded-lg border-2 border-green-400 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => window.open('https://wa.me/201120500602?text=Hello%20Nawwar%20Journey', '_blank')}
                 />
               </div>
               <p className="text-xs text-center text-blue-300">
