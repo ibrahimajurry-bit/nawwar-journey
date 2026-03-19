@@ -75,28 +75,14 @@ export default function OwnerLogin() {
 
               <div className="flex items-start gap-4 group">
                 <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-400 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <BookOpen className="w-6 h-6 text-slate-900" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg text-white">
-                    قصص مصورة | Illustrated Stories
-                  </h3>
-                  <p className="text-sm text-blue-200">
-                    محتوى غني بالصور والرسومات التعليمية
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4 group">
-                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Zap className="w-6 h-6 text-slate-900" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg text-white">
-                    تطبيقات ASL | ASL Applications
+                    مميزات أخرى قريباً | More Features Coming Soon
                   </h3>
                   <p className="text-sm text-blue-200">
-                    تطبيقات لغة الإشارة الأمريكية المتقدمة
+                    نعمل على إضافة ميزات جديدة ومثيرة
                   </p>
                 </div>
               </div>
