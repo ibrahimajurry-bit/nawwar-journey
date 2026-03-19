@@ -37,3 +37,16 @@ export const generatedQuizzes = mysqlTable("generated_quizzes", {
 
 export type GeneratedQuiz = typeof generatedQuizzes.$inferSelect;
 export type InsertGeneratedQuiz = typeof generatedQuizzes.$inferInsert;
+// Teacher accounts table - stores teacher login credentials
+export const teacherAccounts = mysqlTable("teacher_accounts", {
+  id: int("id").autoincrement().primaryKey(),
+  schoolName: varchar("schoolName", { length: 255 }).notNull(),
+  passwordHash: varchar("passwordHash", { length: 255 }).notNull(),
+  isPremium: int("isPremium").default(0).notNull(), // 0 = free, 1 = paid
+  premiumExpiry: timestamp("premiumExpiry"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TeacherAccount = typeof teacherAccounts.$inferSelect;
+export type InsertTeacherAccount = typeof teacherAccounts.$inferInsert;
