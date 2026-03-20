@@ -1,7 +1,9 @@
 import { describe, it, expect } from "vitest";
 
+// Mirrors the hardcoded accounts in TeacherLogin.tsx
 const accounts: Record<string, { password: string; role: "owner" | "teacher" }> = {
-  "Ayaali": { password: "aya1234", role: "owner" },
+  "admin2009": { password: "admin2009", role: "owner" },
+  "Ayaali": { password: "aya1234", role: "teacher" },
   "Ayaali123": { password: "Ayaali123", role: "teacher" },
   "Ahmed123": { password: "Ahmed123", role: "teacher" },
 };
@@ -15,10 +17,16 @@ function validateLogin(username: string, password: string) {
 }
 
 describe("Teacher Login Logic", () => {
-  it("should accept valid owner credentials (Ayaali/aya1234)", () => {
-    const result = validateLogin("Ayaali", "aya1234");
+  it("should accept valid owner credentials (admin2009/admin2009)", () => {
+    const result = validateLogin("admin2009", "admin2009");
     expect(result.success).toBe(true);
     expect(result.role).toBe("owner");
+  });
+
+  it("should accept Ayaali as regular teacher (not owner)", () => {
+    const result = validateLogin("Ayaali", "aya1234");
+    expect(result.success).toBe(true);
+    expect(result.role).toBe("teacher");
   });
 
   it("should accept teacher Ayaali123", () => {

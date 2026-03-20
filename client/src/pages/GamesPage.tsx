@@ -5,7 +5,7 @@
  */
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowRight, Gamepad2, BookOpen, Sparkles, Loader2, Trash2 } from "lucide-react";
+import { ArrowRight, Gamepad2, BookOpen, Sparkles, Loader2, Trash2, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 
 
@@ -41,10 +41,12 @@ export default function GamesPage() {
   const [savedQuizzes, setSavedQuizzes] = useState<SavedQuiz[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [gradeFilter, setGradeFilter] = useState("");
 
   // Get current teacher info from localStorage
   const teacherName = localStorage.getItem("teacherName") || "";
-  const isOwner = localStorage.getItem("isOwner") === "true" || teacherName === "Ayaali";
+  const isOwner = localStorage.getItem("isOwner") === "true" || teacherName === "admin2009";
 
   const loadQuizzes = () => {
     // Owner sees all quizzes, teachers see only their own
@@ -117,8 +119,38 @@ export default function GamesPage() {
         </div>
       </header>
 
+      {/* Search & Filter */}
+      <div className="container mx-auto px-4 pt-6 pb-2 max-w-4xl">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="ابحث عن لعبة..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-300"
+              style={{ fontFamily: "'Tajawal', sans-serif" }}
+            />
+          </div>
+          {savedQuizzes.length > 0 && (
+            <select
+              value={gradeFilter}
+              onChange={(e) => setGradeFilter(e.target.value)}
+              className="px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-600"
+              style={{ fontFamily: "'Tajawal', sans-serif" }}
+            >
+              <option value="">جميع الصفوف</option>
+              {Array.from(new Set(savedQuizzes.map(q => q.grade).filter(Boolean))).map(grade => (
+                <option key={grade} value={grade}>{grade}</option>
+              ))}
+            </select>
+          )}
+        </div>
+      </div>
+
       {/* Content */}
-      <main className="flex-1 container mx-auto px-4 py-10 max-w-4xl">
+      <main className="flex-1 container mx-auto px-4 py-6 max-w-4xl">
         <motion.div
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
           initial="hidden"
@@ -198,7 +230,13 @@ export default function GamesPage() {
           </motion.div>
 
           {/* Dynamically generated quiz games from database */}
-          {savedQuizzes.map((quiz, idx) => {
+          {savedQuizzes
+            .filter(q => {
+              const matchSearch = !searchQuery || q.title.toLowerCase().includes(searchQuery.toLowerCase()) || (q.grade && q.grade.toLowerCase().includes(searchQuery.toLowerCase()));
+              const matchGrade = !gradeFilter || q.grade === gradeFilter;
+              return matchSearch && matchGrade;
+            })
+            .map((quiz, idx) => {
             const gradientClass = quizGradients[idx % quizGradients.length];
             return (
               <motion.div key={quiz.id} custom={idx + 2} variants={fadeUp} initial="hidden" animate="visible">

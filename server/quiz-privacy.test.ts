@@ -39,23 +39,26 @@ describe("Quiz Privacy System", () => {
     expect(result).toHaveLength(3);
   });
 
-  it("should correctly identify owner vs teacher", () => {
-    // Owner accounts
+  it("should correctly identify admin2009 as owner (not Ayaali)", () => {
+    // Updated: admin2009 is the owner, Ayaali is now a regular teacher
     const accounts: Record<string, { password: string; role: "owner" | "teacher" }> = {
-      "Ayaali": { password: "aya1234", role: "owner" },
+      "admin2009": { password: "admin2009", role: "owner" },
+      "Ayaali": { password: "aya1234", role: "teacher" },
       "Ayaali123": { password: "Ayaali123", role: "teacher" },
       "Ahmed123": { password: "Ahmed123", role: "teacher" },
     };
 
-    expect(accounts["Ayaali"].role).toBe("owner");
+    expect(accounts["admin2009"].role).toBe("owner");
+    expect(accounts["Ayaali"].role).toBe("teacher");
     expect(accounts["Ayaali123"].role).toBe("teacher");
     expect(accounts["Ahmed123"].role).toBe("teacher");
   });
 
-  it("should only allow owner to delete quizzes", () => {
-    const canDelete = (username: string) => username === "Ayaali";
+  it("should only allow admin2009 to delete quizzes", () => {
+    const canDelete = (username: string) => username === "admin2009";
 
-    expect(canDelete("Ayaali")).toBe(true);
+    expect(canDelete("admin2009")).toBe(true);
+    expect(canDelete("Ayaali")).toBe(false);
     expect(canDelete("Ayaali123")).toBe(false);
     expect(canDelete("Ahmed123")).toBe(false);
     expect(canDelete("")).toBe(false);

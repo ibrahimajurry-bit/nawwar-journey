@@ -155,12 +155,12 @@ async function startServer() {
   });
 
   // REST API endpoint for deleting a quiz (owner only)
-  // Owner is identified by ?user=Ayaali query param (simple auth)
+  // Owner is identified by ?user=admin2009 query param (simple auth)
   app.delete('/api/quiz/:id', async (req, res) => {
     try {
       const requestUser = req.query.user as string | undefined;
-      // Only the owner (Ayaali) can delete quizzes
-      if (requestUser !== 'Ayaali') {
+      // Only the owner (admin2009) can delete quizzes
+      if (requestUser !== 'admin2009') {
         return res.status(403).json({ error: 'Only the site owner can delete quizzes' });
       }
 
@@ -223,6 +223,17 @@ async function startServer() {
         passwordHash,
       });
 
+      // Send notification to owner about new teacher registration
+      try {
+        const { notifyOwner } = await import('./notification');
+        await notifyOwner({
+          title: `معلم جديد: ${name.trim()}`,
+          content: `تم تسجيل معلم جديد في المنصة:\nالاسم: ${name.trim()}\nالإيميل: ${email}\nواتساب: ${whatsapp}`,
+        });
+      } catch (notifErr) {
+        console.warn('[Notification] Failed to notify about new teacher:', notifErr);
+      }
+
       res.json({ success: true, name: name.trim() });
     } catch (error: any) {
       console.error('[Teacher Register Error]', error);
@@ -264,6 +275,81 @@ async function startServer() {
       res.json({ success: true, name: teacher.name, email: teacher.email });
     } catch (error: any) {
       console.error('[Teacher Email Login Error]', error);
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  });
+
+  // Admin API: List all registered teachers (owner only)
+  app.get('/api/admin/teachers', async (req, res) => {
+    try {
+      const requestUser = req.query.user as string | undefined;
+      if (requestUser !== 'admin2009') {
+        return res.status(403).json({ error: 'Unauthorized' });
+      }
+      const { getDb } = await import('../db');
+      const { registeredTeachers } = await import('../../drizzle/schema');
+      const { desc } = await import('drizzle-orm');
+      const db = await getDb();
+      if (!db) return res.json({ teachers: [] });
+      const teachers = await db.select({
+        id: registeredTeachers.id,
+        name: registeredTeachers.name,
+        email: registeredTeachers.email,
+        whatsapp: registeredTeachers.whatsapp,
+        approved: registeredTeachers.approved,
+        createdAt: registeredTeachers.createdAt,
+      }).from(registeredTeachers).orderBy(desc(registeredTeachers.createdAt));
+      res.json({ teachers });
+    } catch (error: any) {
+      console.error('[Admin Teachers List Error]', error);
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  });
+
+  // Admin API: Delete a teacher (owner only)
+  app.delete('/api/admin/teachers/:id', async (req, res) => {
+    try {
+      const requestUser = req.query.user as string | undefined;
+      if (requestUser !== 'admin2009') {
+        return res.status(403).json({ error: 'Unauthorized' });
+      }
+      const teacherId = parseInt(req.params.id);
+      if (isNaN(teacherId)) return res.status(400).json({ error: 'Invalid teacher ID' });
+      const { getDb } = await import('../db');
+      const { registeredTeachers } = await import('../../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+      const db = await getDb();
+      if (!db) return res.status(500).json({ error: 'Database not available' });
+      await db.delete(registeredTeachers).where(eq(registeredTeachers.id, teacherId));
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[Admin Delete Teacher Error]', error);
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  });
+
+  // Admin API: Update teacher approval status (owner only)
+  app.patch('/api/admin/teachers/:id', async (req, res) => {
+    try {
+      const requestUser = req.query.user as string | undefined;
+      if (requestUser !== 'admin2009') {
+        return res.status(403).json({ error: 'Unauthorized' });
+      }
+      const teacherId = parseInt(req.params.id);
+      const { approved } = req.body;
+      if (isNaN(teacherId)) return res.status(400).json({ error: 'Invalid teacher ID' });
+      if (!['pending', 'approved', 'rejected'].includes(approved)) {
+        return res.status(400).json({ error: 'Invalid status' });
+      }
+      const { getDb } = await import('../db');
+      const { registeredTeachers } = await import('../../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+      const db = await getDb();
+      if (!db) return res.status(500).json({ error: 'Database not available' });
+      await db.update(registeredTeachers).set({ approved }).where(eq(registeredTeachers.id, teacherId));
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[Admin Update Teacher Error]', error);
       res.status(500).json({ error: error.message || 'Internal server error' });
     }
   });

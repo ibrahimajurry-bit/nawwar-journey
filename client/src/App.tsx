@@ -13,6 +13,7 @@ import GamesPage from "./pages/GamesPage";
 import IsharaQuiz from "./pages/IsharaQuiz";
 import QuizGeneratorApp from "./pages/QuizGeneratorApp";
 import TeacherLogin from "./pages/TeacherLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function ProtectedRouter() {
   return (
@@ -23,6 +24,7 @@ function ProtectedRouter() {
       <Route path="/games/ishara" component={IsharaQuiz} />
       <Route path="/apps/qr-generator" component={QRGenerator} />
       <Route path="/apps/quiz-generator" component={QuizGeneratorApp} />
+      <Route path="/admin" component={AdminDashboard} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

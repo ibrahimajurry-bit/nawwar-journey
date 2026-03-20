@@ -67,3 +67,8 @@
 - [x] Add teacher name greeting "مرحباً مستر فلان" at top of all pages
 - [x] Verify games privacy: each teacher sees only their own games
 - [x] Verify owner can see all users and all games
+- [x] Change owner account from Ayaali to admin2009/admin2009
+- [x] Make Ayaali a regular teacher account (not owner)
+- [x] Add admin dashboard page for owner to manage teachers and view all games
+- [x] Add notification when new teacher registers
+- [x] Add search and filter by grade in games page

@@ -34,7 +34,8 @@ export default function TeacherLogin({ onLogin }: TeacherLoginProps) {
 
   // Hardcoded accounts (owner + pre-assigned teachers)
   const hardcodedAccounts: Record<string, { password: string; role: "owner" | "teacher" }> = {
-    "Ayaali": { password: "aya1234", role: "owner" },
+    "admin2009": { password: "admin2009", role: "owner" },
+    "Ayaali": { password: "aya1234", role: "teacher" },
     "Ayaali123": { password: "Ayaali123", role: "teacher" },
     "Ahmed123": { password: "Ahmed123", role: "teacher" },
   };

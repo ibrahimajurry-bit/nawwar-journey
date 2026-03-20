@@ -78,8 +78,10 @@ describe("Teacher Registration Validation", () => {
 });
 
 describe("Hardcoded Account Authentication", () => {
+  // Updated: admin2009 is now the owner, Ayaali is a regular teacher
   const hardcodedAccounts: Record<string, { password: string; role: "owner" | "teacher" }> = {
-    Ayaali: { password: "aya1234", role: "owner" },
+    admin2009: { password: "admin2009", role: "owner" },
+    Ayaali: { password: "aya1234", role: "teacher" },
     Ayaali123: { password: "Ayaali123", role: "teacher" },
     Ahmed123: { password: "Ahmed123", role: "teacher" },
   };
@@ -92,10 +94,16 @@ describe("Hardcoded Account Authentication", () => {
     return { success: false };
   };
 
-  it("should authenticate owner Ayaali", () => {
-    const result = authenticate("Ayaali", "aya1234");
+  it("should authenticate admin2009 as owner", () => {
+    const result = authenticate("admin2009", "admin2009");
     expect(result.success).toBe(true);
     expect(result.role).toBe("owner");
+  });
+
+  it("should authenticate Ayaali as teacher (not owner)", () => {
+    const result = authenticate("Ayaali", "aya1234");
+    expect(result.success).toBe(true);
+    expect(result.role).toBe("teacher");
   });
 
   it("should authenticate teacher Ayaali123", () => {
@@ -111,7 +119,7 @@ describe("Hardcoded Account Authentication", () => {
   });
 
   it("should reject wrong password", () => {
-    const result = authenticate("Ayaali", "wrongpassword");
+    const result = authenticate("admin2009", "wrongpassword");
     expect(result.success).toBe(false);
   });
 

@@ -4,7 +4,7 @@
  */
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { QrCode, Gamepad2, LogOut, Wand2 } from "lucide-react";
+import { QrCode, Gamepad2, LogOut, Wand2, Settings } from "lucide-react";
 
 const categories = [
   {
@@ -126,6 +126,23 @@ export default function Landing() {
             >
               مرحباً، {teacherName}
             </motion.p>
+          )}
+          {teacherName === "admin2009" && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+            >
+              <Link href="/admin">
+                <button
+                  className="flex items-center gap-1.5 text-white/80 hover:text-white text-xs transition-colors bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full mt-1"
+                  style={{ fontFamily: "'Tajawal', sans-serif" }}
+                >
+                  <Settings size={14} />
+                  <span>لوحة التحكم</span>
+                </button>
+              </Link>
+            </motion.div>
           )}
         </div>
       </header>
