@@ -64,3 +64,6 @@
 - [x] Replace plant icon on Landing page header with Nawar logo
 - [x] Remove school logo from Quiz Generator page header
 - [x] Fix QR Generator default logo preview to show Nawar logo correctly
+- [x] Add teacher name greeting "مرحباً مستر فلان" at top of all pages
+- [x] Verify games privacy: each teacher sees only their own games
+- [x] Verify owner can see all users and all games

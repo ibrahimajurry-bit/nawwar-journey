@@ -21,6 +21,7 @@ const NAWAR_LOGO_ASPECT_RATIO = 1.0;
 type LogoMode = "school" | "custom";
 
 export default function QRGenerator() {
+  const teacherName = localStorage.getItem("teacherName") || "";
   const [url, setUrl] = useState("");
   const [title, setTitle] = useState("");
   const [qrGenerated, setQrGenerated] = useState(false);
@@ -290,6 +291,11 @@ export default function QRGenerator() {
               أنشئ رمز QR احترافيًا مع لوجو مخصص
             </p>
             <p className="text-white/50 text-xs mt-1">QR Code Generator</p>
+            {teacherName && (
+              <p className="text-white/50 text-xs mt-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                مرحباً، {teacherName}
+              </p>
+            )}
           </div>
         </div>
       </header>
