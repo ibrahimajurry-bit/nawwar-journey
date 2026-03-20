@@ -42,3 +42,16 @@
 - [x] Add teacher accounts: Ayaali123/Ayaali123 and Ahmed123/Ahmed123
 - [x] Fix quiz generator error: "لم يتم التعرف على أي أسئلة" when generating quiz
 - [x] Implement game privacy: each teacher sees only their own games, owner sees all
+- [x] Rebrand: Remove school logo from Landing page header
+- [x] Rebrand: Change title to "Nawwar Journey" with subtitle about educational apps
+- [x] Rebrand: Remove Stories section from Landing page
+- [x] Rebrand: Keep only 2 sections - QR Code and Educational Games under "تطبيقات الموقع"
+- [x] Rebrand: Remove school name from Landing page footer
+- [x] Rebrand: Remove school logo from QR Generator page header
+- [x] Rebrand: Remove school name from QR Generator page footer
+- [x] Rebrand: Remove school logo from Games page header
+- [x] Rebrand: Remove school name from Games page footer
+- [x] Rebrand: Update site title/meta
+- [x] Rebrand: Replace school references in quiz_generator.html
+- [x] Rebrand: Replace school references in quiz_ishara.html
+- [x] Rebrand: Replace school references in AppsPage and StoriesPage

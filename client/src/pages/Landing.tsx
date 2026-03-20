@@ -1,23 +1,20 @@
 /*
- * Landing Page - Main portal with 3 category icons
- * Design: Clean, school-branded, 3 large icons linking to sub-pages
+ * Landing Page - Nawwar Journey educational platform
+ * Two main sections: QR Code Generator + Educational Games
  */
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { Wrench, Gamepad2, BookImage } from "lucide-react";
-
-const SCHOOL_LOGO = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663029980891/VGalWSshoNNhMYmE.png";
+import { QrCode, Gamepad2, LogOut } from "lucide-react";
 
 const categories = [
   {
-    id: "apps",
-    title: "تطبيقات قسم ASL",
-    subtitle: "ASL Applications",
-    icon: Wrench,
-    href: "/apps",
+    id: "qr",
+    title: "مولّد أكواد QR",
+    subtitle: "QR Code Generator",
+    icon: QrCode,
+    href: "/apps/qr-generator",
     gradient: "from-[#1a6b3c] via-[#1e7a44] to-[#228B52]",
     hoverBorder: "hover:border-green-300",
-    iconBg: "bg-white/20",
   },
   {
     id: "games",
@@ -27,17 +24,6 @@ const categories = [
     href: "/games",
     gradient: "from-orange-500 via-orange-400 to-amber-500",
     hoverBorder: "hover:border-orange-300",
-    iconBg: "bg-white/20",
-  },
-  {
-    id: "stories",
-    title: "قصص مصورة",
-    subtitle: "Illustrated Stories",
-    icon: BookImage,
-    href: "/stories",
-    gradient: "from-[#1b5e8a] via-[#2980b9] to-[#3498db]",
-    hoverBorder: "hover:border-blue-300",
-    iconBg: "bg-white/20",
   },
 ];
 
@@ -55,6 +41,15 @@ const itemVariants = {
 };
 
 export default function Landing() {
+  const teacherName = localStorage.getItem("teacherName") || "";
+
+  const handleLogout = () => {
+    localStorage.removeItem("teacherLoggedIn");
+    localStorage.removeItem("teacherName");
+    localStorage.removeItem("isOwner");
+    window.location.reload();
+  };
+
   return (
     <div dir="rtl" className="min-h-screen flex flex-col bg-gradient-to-b from-[#f0f7f0] via-white to-[#f0f4f8]">
       {/* Hero Header */}
@@ -64,14 +59,33 @@ export default function Landing() {
           <div className="absolute bottom-10 left-20 w-60 h-60 rounded-full bg-white/15 blur-3xl" />
         </div>
         <div className="relative container mx-auto px-4 py-8 flex flex-col items-center gap-3">
-          <motion.img
-            src={SCHOOL_LOGO}
-            alt="School Logo"
-            className="h-20 w-auto drop-shadow-lg"
+          {/* Logout button */}
+          {teacherName && (
+            <motion.div
+              className="absolute top-4 left-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 text-white/60 hover:text-white text-xs transition-colors bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full"
+                style={{ fontFamily: "'Tajawal', sans-serif" }}
+              >
+                <LogOut size={14} />
+                <span>خروج</span>
+              </button>
+            </motion.div>
+          )}
+
+          <motion.div
+            className="text-5xl mb-1"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
-          />
+          >
+            🌱
+          </motion.div>
           <motion.h1
             className="text-2xl md:text-3xl font-bold text-center"
             style={{ fontFamily: "'Tajawal', sans-serif" }}
@@ -79,7 +93,7 @@ export default function Landing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            مدرسة الإبداع العلمي الدولية - مويلح
+            Nawwar Journey
           </motion.h1>
           <motion.p
             className="text-base text-white/80 text-center"
@@ -88,15 +102,37 @@ export default function Landing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35, duration: 0.5 }}
           >
-            قسم اللغة العربية للناطقين بغيرها - ASL
+            منصة تعليمية للتطبيقات والألعاب التفاعلية
           </motion.p>
+          {teacherName && (
+            <motion.p
+              className="text-sm text-white/50"
+              style={{ fontFamily: "'Tajawal', sans-serif" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              مرحباً، {teacherName}
+            </motion.p>
+          )}
         </div>
       </header>
 
-      {/* Main Content - 3 Category Icons */}
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
+      {/* Section Title */}
+      <div className="container mx-auto px-4 pt-10 pb-2 max-w-3xl">
+        <h2
+          className="text-lg font-bold text-gray-700 text-center"
+          style={{ fontFamily: "'Tajawal', sans-serif" }}
+        >
+          تطبيقات الموقع
+        </h2>
+        <p className="text-xs text-gray-400 text-center mt-1">Site Applications</p>
+      </div>
+
+      {/* Main Content - 2 Category Icons */}
+      <main className="flex-1 flex items-start justify-center px-4 py-6">
         <motion.div
-          className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8 max-w-3xl w-full"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 max-w-2xl w-full"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -124,9 +160,7 @@ export default function Landing() {
                       >
                         {cat.title}
                       </h2>
-                      <p
-                        className="text-xs text-gray-400 mt-1"
-                      >
+                      <p className="text-xs text-gray-400 mt-1">
                         {cat.subtitle}
                       </p>
                     </div>
@@ -141,7 +175,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="bg-[#1a6b3c] text-white/70 py-4 text-center">
         <p className="text-sm" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-          مدرسة الإبداع العلمي الدولية - مويلح | قسم اللغة العربية للناطقين بغيرها
+          Nawwar Journey &mdash; منصة تعليمية للتطبيقات التفاعلية
         </p>
       </footer>
     </div>

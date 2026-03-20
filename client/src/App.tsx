@@ -9,9 +9,7 @@ import { useEffect, useState } from "react";
 import Landing from "./pages/Landing";
 import Home from "./pages/Home";
 import QRGenerator from "./pages/QRGenerator";
-import AppsPage from "./pages/AppsPage";
 import GamesPage from "./pages/GamesPage";
-import StoriesPage from "./pages/StoriesPage";
 import IsharaQuiz from "./pages/IsharaQuiz";
 import QuizGeneratorApp from "./pages/QuizGeneratorApp";
 import TeacherLogin from "./pages/TeacherLogin";
@@ -20,9 +18,7 @@ function ProtectedRouter() {
   return (
     <Switch>
       <Route path="/" component={Landing} />
-      <Route path="/apps" component={AppsPage} />
       <Route path="/games" component={GamesPage} />
-      <Route path="/stories" component={StoriesPage} />
       <Route path="/games/nawwar" component={Home} />
       <Route path="/games/ishara" component={IsharaQuiz} />
       <Route path="/apps/qr-generator" component={QRGenerator} />

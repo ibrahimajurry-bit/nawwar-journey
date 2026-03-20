@@ -6,7 +6,7 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowRight, BookImage } from "lucide-react";
 
-const SCHOOL_LOGO = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663029980891/VGalWSshoNNhMYmE.png";
+
 
 export default function StoriesPage() {
   return (
@@ -21,7 +21,7 @@ export default function StoriesPage() {
                 <span style={{ fontFamily: "'Tajawal', sans-serif" }}>الرئيسية</span>
               </button>
             </Link>
-            <img src={SCHOOL_LOGO} alt="Logo" className="h-10 w-auto" />
+
           </div>
           <div className="text-center mt-4 pb-2">
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/15 mb-3">
@@ -77,7 +77,7 @@ export default function StoriesPage() {
       {/* Footer */}
       <footer className="bg-[#1b5e8a] text-white/70 py-4 text-center">
         <p className="text-sm" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-          مدرسة الإبداع العلمي الدولية - مويلح | قسم اللغة العربية للناطقين بغيرها
+          Nawwar Journey &mdash; منصة تعليمية للتطبيقات التفاعلية
         </p>
       </footer>
     </div>

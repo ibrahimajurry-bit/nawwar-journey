@@ -6,7 +6,7 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowRight, QrCode, Wrench, Sparkles } from "lucide-react";
 
-const SCHOOL_LOGO = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663029980891/VGalWSshoNNhMYmE.png";
+
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -30,7 +30,7 @@ export default function AppsPage() {
                 <span style={{ fontFamily: "'Tajawal', sans-serif" }}>الرئيسية</span>
               </button>
             </Link>
-            <img src={SCHOOL_LOGO} alt="Logo" className="h-10 w-auto" />
+
           </div>
           <div className="text-center mt-4 pb-2">
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/15 mb-3">
@@ -40,9 +40,9 @@ export default function AppsPage() {
               className="text-2xl md:text-3xl font-bold"
               style={{ fontFamily: "'Tajawal', sans-serif" }}
             >
-              تطبيقات قسم ASL
+              تطبيقات الموقع
             </h1>
-            <p className="text-white/60 text-sm mt-1">ASL Applications</p>
+            <p className="text-white/60 text-sm mt-1">Site Applications</p>
           </div>
         </div>
       </header>
@@ -74,7 +74,7 @@ export default function AppsPage() {
                 </div>
                 <div className="p-5">
                   <p className="text-gray-600 text-sm leading-relaxed" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                    أنشئ رمز QR احترافيًا مع لوجو المدرسة
+                    أنشئ رمز QR احترافيًا مع لوجو مخصص
                   </p>
                   <div className="mt-3 flex items-center gap-2 text-green-600 font-medium text-sm group-hover:gap-3 transition-all" style={{ fontFamily: "'Tajawal', sans-serif" }}>
                     <span>افتح الأداة</span>
@@ -133,7 +133,7 @@ export default function AppsPage() {
       {/* Footer */}
       <footer className="bg-[#1a6b3c] text-white/70 py-4 text-center">
         <p className="text-sm" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-          مدرسة الإبداع العلمي الدولية - مويلح | قسم اللغة العربية للناطقين بغيرها
+          Nawwar Journey &mdash; منصة تعليمية للتطبيقات التفاعلية
         </p>
       </footer>
     </div>

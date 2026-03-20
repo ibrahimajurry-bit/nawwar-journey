@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مولّد الألعاب التعليمية ⚡ | Creative Science School</title>
+<title>مولّد الألعاب التعليمية ⚡ | Nawwar Journey</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -388,11 +388,11 @@ textarea { resize: vertical; min-height: 200px; line-height: 1.7; }
             <div class="form-row cols-2" style="margin-bottom:16px">
                 <div>
                     <label>اسم المدرسة بالعربي | School Name in Arabic</label>
-                    <input type="text" id="school-name-ar" placeholder="مدرسة الإبداع العلمي الدولية" value="مدرسة الإبداع العلمي الدولية">
+                    <input type="text" id="school-name-ar" placeholder="Nawwar Journey" value="Nawwar Journey">
                 </div>
                 <div>
                     <label>School Name in English | اسم المدرسة بالإنجليزي</label>
-                    <input type="text" id="school-name-en" placeholder="Creative Science School" value="Creative Science School | مويلح">
+                    <input type="text" id="school-name-en" placeholder="Nawwar Journey" value="Nawwar Journey">
                 </div>
             </div>
             <label style="margin-bottom:8px">School Logo | لوجو المدرسة</label>
@@ -525,7 +525,7 @@ textarea { resize: vertical; min-height: 200px; line-height: 1.7; }
 </main>
 
 <div class="footer">
-    Quiz Generator v2.0 &nbsp;|&nbsp; Creative Science School &nbsp;|&nbsp; مدرسة الإبداع العلمي الدولية
+    Quiz Generator v2.0 &nbsp;|&nbsp; Nawwar Journey &nbsp;|&nbsp; منصة تعليمية
 </div>
 
 <script>
@@ -635,8 +635,8 @@ async function generateQuiz() {
         if (!parsed || parsed.length === 0) throw new Error('لم يتم التعرف على أي أسئلة. تأكد من تنسيق الأسئلة.');
         showStatus('loading', '🎨 جارٍ بناء اللعبة (' + parsed.length + ' سؤال)...', true);
         await new Promise(r => setTimeout(r, 300));
-        const schoolAr = document.getElementById('school-name-ar').value.trim() || 'مدرسة الإبداع العلمي الدولية';
-        const schoolEn = document.getElementById('school-name-en').value.trim() || 'Creative Science School';
+        const schoolAr = document.getElementById('school-name-ar').value.trim() || 'Nawwar Journey';
+        const schoolEn = document.getElementById('school-name-en').value.trim() || 'Nawwar Journey';
         generatedHTML = buildQuizHTML(title, grade, grades, parsed, schoolAr, schoolEn);
         // Auto-save to server
         showStatus('loading', '💾 جارٍ حفظ اللعبة...', true);
@@ -813,8 +813,8 @@ function buildQuizHTML(lessonTitle, gradeName, grades, questions, schoolAr, scho
     const sectionsOptions = grades.map(g => `<option value="${g}">${g}</option>`).join('');
     const logoToUse = customLogoB64 || LOGO_B64;
     const logoMime = customLogoB64 ? customLogoMime : 'image/jpeg';
-    const safeSchoolAr = (schoolAr || 'مدرسة الإبداع العلمي الدولية').replace(/'/g, "\\'");
-    const safeSchoolEn = (schoolEn || 'Creative Science School').replace(/'/g, "\\'");
+    const safeSchoolAr = (schoolAr || 'Nawwar Journey').replace(/'/g, "\\'");
+    const safeSchoolEn = (schoolEn || 'Nawwar Journey').replace(/'/g, "\\'");
     const safeLessonTitle = lessonTitle.replace(/'/g, "\\'");
     const safeGradeName = gradeName.replace(/'/g, "\\'");
     
@@ -826,7 +826,7 @@ function buildQuizHTML(lessonTitle, gradeName, grades, questions, schoolAr, scho
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>اختبار ${safeLessonTitle} | Creative Science School</title>
+<title>اختبار ${safeLessonTitle} | Nawwar Journey</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"><\/script>
 <style>

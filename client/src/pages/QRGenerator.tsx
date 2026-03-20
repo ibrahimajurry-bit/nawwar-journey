@@ -157,7 +157,7 @@ export default function QRGenerator() {
 
     // If custom mode selected but no logo uploaded, show error
     if (logoMode === "custom" && !customLogo) {
-      setError("الرجاء رفع لوجو مخصص أو اختيار لوجو المدرسة");
+      setError("الرجاء رفع لوجو مخصص أو اختيار اللوجو الافتراضي");
       return;
     }
 
@@ -280,17 +280,17 @@ export default function QRGenerator() {
                 <span style={{ fontFamily: "'Tajawal', sans-serif" }}>الرئيسية</span>
               </button>
             </Link>
-            <img src={SCHOOL_LOGO_URL} alt="Logo" className="h-12 w-auto" />
+
           </div>
           <div className="text-center mt-4">
             <QrCode size={40} className="mx-auto mb-2 opacity-80" />
             <h1 className="text-2xl md:text-3xl font-bold" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-              مولد أكواد QR للمدرسة
+              مولّد أكواد QR
             </h1>
             <p className="text-white/70 mt-1 text-sm" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-              أنشئ رمز QR احترافيًا مع لوجو المدرسة
+              أنشئ رمز QR احترافيًا مع لوجو مخصص
             </p>
-            <p className="text-white/50 text-xs mt-1">School QR Code Generator</p>
+            <p className="text-white/50 text-xs mt-1">QR Code Generator</p>
           </div>
         </div>
       </header>
@@ -386,13 +386,13 @@ export default function QRGenerator() {
                       className={`text-sm font-bold ${logoMode === "school" ? "text-[#1a6b3c]" : "text-gray-700"}`}
                       style={{ fontFamily: "'Tajawal', sans-serif" }}
                     >
-                      لوجو الإبداع العلمي
+                      لوجو مخصص ١
                     </span>
                   </div>
                   <span className="text-xs text-gray-400" style={{ fontFamily: "'Tajawal', sans-serif" }}>
                     يُضاف تلقائيًا
                   </span>
-                  <span className="block text-xs text-gray-400">(Auto - School Logo)</span>
+                  <span className="block text-xs text-gray-400">(Default Logo)</span>
                 </div>
               </button>
 
@@ -560,7 +560,7 @@ export default function QRGenerator() {
 
               {/* Logo mode indicator */}
               <p className="text-gray-400 text-xs mt-3" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                {logoMode === "school" ? "🏫 لوجو مدرسة الإبداع العلمي" : "🎨 لوجو مخصص"}
+                {logoMode === "school" ? "🖼️ اللوجو الافتراضي" : "🎨 لوجو مخصص"}
               </p>
 
               {/* Download Button */}
@@ -585,7 +585,7 @@ export default function QRGenerator() {
       {/* Footer */}
       <footer className="bg-[#1a6b3c] text-white/70 py-4 text-center mt-12">
         <p className="text-sm" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-          مدرسة الإبداع العلمي الدولية - مويلح | قسم اللغة العربية للناطقين بغيرها
+          Nawwar Journey &mdash; منصة تعليمية للتطبيقات التفاعلية
         </p>
       </footer>
     </div>
