@@ -7,11 +7,11 @@ export default function QuizGeneratorApp() {
       {/* Back button */}
       <div className="p-4">
         <Link
-          href="/apps"
+          href="/"
           className="inline-flex items-center gap-2 text-[#1b6b2f] hover:text-[#0d3d1a] font-medium transition-colors"
         >
           <ArrowRight className="w-5 h-5" />
-          <span>العودة لتطبيقات ASL</span>
+          <span>العودة للصفحة الرئيسية</span>
         </Link>
       </div>
 

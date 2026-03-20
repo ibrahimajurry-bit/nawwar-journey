@@ -55,3 +55,4 @@
 - [x] Rebrand: Replace school references in quiz_generator.html
 - [x] Rebrand: Replace school references in quiz_ishara.html
 - [x] Rebrand: Replace school references in AppsPage and StoriesPage
+- [x] Restore Quiz Generator (منشئ الألعاب التعليمية) to تطبيقات الموقع section on Landing page

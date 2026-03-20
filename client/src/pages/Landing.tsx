@@ -4,7 +4,7 @@
  */
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { QrCode, Gamepad2, LogOut } from "lucide-react";
+import { QrCode, Gamepad2, LogOut, Wand2 } from "lucide-react";
 
 const categories = [
   {
@@ -17,8 +17,17 @@ const categories = [
     hoverBorder: "hover:border-green-300",
   },
   {
+    id: "quiz-generator",
+    title: "منشئ الألعاب التعليمية",
+    subtitle: "AI Quiz Generator",
+    icon: Wand2,
+    href: "/apps/quiz-generator",
+    gradient: "from-purple-600 via-purple-500 to-indigo-500",
+    hoverBorder: "hover:border-purple-300",
+  },
+  {
     id: "games",
-    title: "ألعاب تعليمية",
+    title: "الألعاب التعليمية",
     subtitle: "Educational Games",
     icon: Gamepad2,
     href: "/games",
@@ -132,7 +141,7 @@ export default function Landing() {
       {/* Main Content - 2 Category Icons */}
       <main className="flex-1 flex items-start justify-center px-4 py-6">
         <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 max-w-2xl w-full"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-5 md:gap-6 max-w-3xl w-full"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
