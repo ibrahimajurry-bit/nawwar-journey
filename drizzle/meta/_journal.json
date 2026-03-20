@@ -43,6 +43,13 @@
       "when": 1774029700853,
       "tag": "0005_perpetual_junta",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1774032991460,
+      "tag": "0006_sparkling_the_liberteens",
+      "breakpoints": true
     }
   ]
 }

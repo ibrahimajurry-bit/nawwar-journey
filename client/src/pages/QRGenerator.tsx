@@ -10,13 +10,13 @@ import QRCode from "qrcode";
 import { motion } from "framer-motion";
 import { QrCode, Download, RotateCcw, ArrowRight, Upload, Link2, CheckCircle2, School, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SCHOOL_LOGO_BASE64 } from "@/lib/schoolLogo";
+// schoolLogo import removed - using Nawar CDN logo instead
 
-// CDN URL for display (img tags), Base64 for canvas operations (no CORS issues)
-const SCHOOL_LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663029980891/S9UfAnxEfs6upsP98hCzwU/school_logo_cropped_ae5db075.png";
+// Nawar Journey logo - CDN URL for both display and canvas (square logo)
+const NAWAR_LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310419663029980891/S9UfAnxEfs6upsP98hCzwU/nawwar-logo-AWuZdjrAyTDDSJocatLxwi.png";
 
-// Logo aspect ratio: 2.39:1 (width:height) - rectangular, not square
-const SCHOOL_LOGO_ASPECT_RATIO = 2.39;
+// Logo aspect ratio: 1:1 (square)
+const NAWAR_LOGO_ASPECT_RATIO = 1.0;
 
 type LogoMode = "school" | "custom";
 
@@ -33,8 +33,8 @@ export default function QRGenerator() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Determine which logo to use based on mode
-  const currentLogoForCanvas = logoMode === "school" ? SCHOOL_LOGO_BASE64 : (customLogo || SCHOOL_LOGO_BASE64);
-  const currentLogoForDisplay = logoMode === "school" ? SCHOOL_LOGO_URL : (customLogo || SCHOOL_LOGO_URL);
+  const currentLogoForCanvas = logoMode === "school" ? NAWAR_LOGO_URL : (customLogo || NAWAR_LOGO_URL);
+  const currentLogoForDisplay = logoMode === "school" ? NAWAR_LOGO_URL : (customLogo || NAWAR_LOGO_URL);
 
   const loadImage = useCallback((src: string): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
@@ -105,13 +105,12 @@ export default function QRGenerator() {
         const logoImg = await loadImage(currentLogoForCanvas);
         
         // Determine if school logo (rectangular) or custom logo (keep as-is)
-        const isSchoolLogo = logoMode === "school";
+        const isDefaultLogo = logoMode === "school";
         const imgAspect = logoImg.naturalWidth / logoImg.naturalHeight;
-        const useAspect = isSchoolLogo ? SCHOOL_LOGO_ASPECT_RATIO : (imgAspect > 1 ? imgAspect : 1);
+        const useAspect = isDefaultLogo ? NAWAR_LOGO_ASPECT_RATIO : (imgAspect > 1 ? imgAspect : 1);
         
-        // For rectangular school logo: width is ~28% of QR, height adjusts by aspect ratio
-        // This keeps the logo small and readable without blocking too much QR data
-        const logoWidth = Math.floor(qrSize * (isSchoolLogo ? 0.28 : 0.22));
+        // For Nawar square logo: width is ~22% of QR, height adjusts by aspect ratio
+        const logoWidth = Math.floor(qrSize * 0.22);
         const logoHeight = Math.floor(logoWidth / useAspect);
         
         const paddingX = Math.floor(logoWidth * 0.06);
@@ -374,8 +373,8 @@ export default function QRGenerator() {
                   logoMode === "school" ? "bg-white shadow-sm border border-green-200" : "bg-gray-50 border border-gray-200"
                 }`}>
                   <img
-                    src={SCHOOL_LOGO_URL}
-                    alt="School Logo"
+                    src={NAWAR_LOGO_URL}
+                    alt="Nawar Logo"
                     className="w-full h-full object-contain"
                   />
                 </div>

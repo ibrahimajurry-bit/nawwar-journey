@@ -186,6 +186,88 @@ async function startServer() {
     }
   });
 
+  // Teacher Registration endpoint
+  app.post('/api/teacher/register', async (req, res) => {
+    try {
+      const { name, email, whatsapp, password } = req.body;
+      if (!name || !email || !whatsapp || !password) {
+        return res.status(400).json({ error: 'All fields are required' });
+      }
+      if (password.length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters' });
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Invalid email format' });
+      }
+
+      const { getDb } = await import('../db');
+      const { registeredTeachers } = await import('../../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+      const bcrypt = await import('bcryptjs');
+
+      const db = await getDb();
+      if (!db) return res.status(500).json({ error: 'Database not available' });
+
+      // Check if email already exists
+      const existing = await db.select().from(registeredTeachers).where(eq(registeredTeachers.email, email.toLowerCase()));
+      if (existing.length > 0) {
+        return res.status(409).json({ error: 'Email already registered' });
+      }
+
+      const passwordHash = await bcrypt.hash(password, 10);
+      await db.insert(registeredTeachers).values({
+        name: name.trim(),
+        email: email.toLowerCase().trim(),
+        whatsapp: whatsapp.trim(),
+        passwordHash,
+      });
+
+      res.json({ success: true, name: name.trim() });
+    } catch (error: any) {
+      console.error('[Teacher Register Error]', error);
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  });
+
+  // Teacher Email Login endpoint
+  app.post('/api/teacher/login-email', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
+      }
+
+      const { getDb } = await import('../db');
+      const { registeredTeachers } = await import('../../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+      const bcrypt = await import('bcryptjs');
+
+      const db = await getDb();
+      if (!db) return res.status(500).json({ error: 'Database not available' });
+
+      const teachers = await db.select().from(registeredTeachers).where(eq(registeredTeachers.email, email.toLowerCase()));
+      if (teachers.length === 0) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
+
+      const teacher = teachers[0];
+      if (teacher.approved !== 'approved') {
+        return res.status(403).json({ error: 'Account pending approval' });
+      }
+
+      const valid = await bcrypt.compare(password, teacher.passwordHash);
+      if (!valid) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
+
+      res.json({ success: true, name: teacher.name, email: teacher.email });
+    } catch (error: any) {
+      console.error('[Teacher Email Login Error]', error);
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  });
+
   // tRPC API
   app.use(
     "/api/trpc",

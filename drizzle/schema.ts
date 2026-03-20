@@ -38,3 +38,17 @@ export const generatedQuizzes = mysqlTable("generated_quizzes", {
 
 export type GeneratedQuiz = typeof generatedQuizzes.$inferSelect;
 export type InsertGeneratedQuiz = typeof generatedQuizzes.$inferInsert;
+
+// Self-registered teachers table
+export const registeredTeachers = mysqlTable("registered_teachers", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  whatsapp: varchar("whatsapp", { length: 30 }).notNull(),
+  passwordHash: varchar("passwordHash", { length: 255 }).notNull(),
+  approved: mysqlEnum("approved", ["pending", "approved", "rejected"]).default("approved").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type RegisteredTeacher = typeof registeredTeachers.$inferSelect;
+export type InsertRegisteredTeacher = typeof registeredTeachers.$inferInsert;
