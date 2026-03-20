@@ -88,12 +88,15 @@ export default function Landing() {
           )}
 
           <motion.div
-            className="text-5xl mb-1"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
           >
-            🌱
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310419663029980891/S9UfAnxEfs6upsP98hCzwU/nawwar-logo-AWuZdjrAyTDDSJocatLxwi.png"
+              alt="Nawar Logo"
+              className="w-20 h-20 rounded-2xl shadow-lg"
+            />
           </motion.div>
           <motion.h1
             className="text-2xl md:text-3xl font-bold text-center"

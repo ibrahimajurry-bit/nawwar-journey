@@ -56,8 +56,11 @@
 - [x] Rebrand: Replace school references in quiz_ishara.html
 - [x] Rebrand: Replace school references in AppsPage and StoriesPage
 - [x] Restore Quiz Generator (منشئ الألعاب التعليمية) to تطبيقات الموقع section on Landing page
-- [ ] Design Nano Banana logo with Arabic word نوار for Nawwar Journey
-- [ ] Remove school logo from QR Generator page header and replace with new Nawwar logo
+- [x] Design Nano Banana logo with Arabic word نوار for Nawwar Journey
+- [x] Remove school logo from QR Generator page header and replace with new Nawwar logo
 - [x] Add teacher self-registration (name, email, WhatsApp, password) with DB storage
 - [x] Add email-based login alongside existing username/password login
 - [x] Place Nawar logo in QR Generator default logo and site header
+- [x] Replace plant icon on Landing page header with Nawar logo
+- [x] Remove school logo from Quiz Generator page header
+- [x] Fix QR Generator default logo preview to show Nawar logo correctly
