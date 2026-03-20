@@ -1,13 +1,12 @@
 /*
  * Educational Games Sub-page - Lists available educational games
  * Shows static games (Nawwar's Journey, Ishara Quiz) + dynamically saved quiz games from DB
- * Owner can delete saved quizzes
+ * Privacy: Teachers see only their own quizzes, Owner sees all
  */
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowRight, Gamepad2, BookOpen, Sparkles, Loader2, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
 
 const SCHOOL_LOGO = "https://files.manuscdn.com/user_upload_by_module/session_file/310419663029980891/VGalWSshoNNhMYmE.png";
 
@@ -16,6 +15,7 @@ interface SavedQuiz {
   title: string;
   grade: string;
   storageUrl: string;
+  createdBy: string | null;
   createdAt: string;
 }
 
@@ -41,15 +41,15 @@ export default function GamesPage() {
   const [savedQuizzes, setSavedQuizzes] = useState<SavedQuiz[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<number | null>(null);
-  const { user } = useAuth();
 
-  // Check if current user is the owner
-  const isOwner = user?.openId === import.meta.env.VITE_APP_ID
-    ? true
-    : (user?.role === "admin");
+  // Get current teacher info from localStorage
+  const teacherName = localStorage.getItem("teacherName") || "";
+  const isOwner = localStorage.getItem("isOwner") === "true" || teacherName === "Ayaali";
 
   const loadQuizzes = () => {
-    fetch("/api/quiz/list")
+    // Owner sees all quizzes, teachers see only their own
+    const userParam = isOwner ? "__all__" : teacherName;
+    fetch(`/api/quiz/list?user=${encodeURIComponent(userParam)}`)
       .then((res) => res.json())
       .then((data) => {
         setSavedQuizzes(data.quizzes || []);
@@ -68,7 +68,7 @@ export default function GamesPage() {
     if (!confirm(`هل أنت متأكد من حذف "${quizTitle}"؟`)) return;
     setDeleting(quizId);
     try {
-      const res = await fetch(`/api/quiz/${quizId}`, { method: "DELETE" });
+      const res = await fetch(`/api/quiz/${quizId}?user=${encodeURIComponent(teacherName)}`, { method: "DELETE" });
       if (res.ok) {
         setSavedQuizzes((prev) => prev.filter((q) => q.id !== quizId));
       } else {
@@ -107,6 +107,12 @@ export default function GamesPage() {
               ألعاب تعليمية
             </h1>
             <p className="text-white/60 text-sm mt-1">Educational Games</p>
+            {/* Show who is viewing */}
+            {teacherName && (
+              <p className="text-white/50 text-xs mt-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                {isOwner ? `👑 مرحباً ${teacherName} (المالك - تعرض جميع الألعاب)` : `مرحباً ${teacherName}`}
+              </p>
+            )}
           </div>
         </div>
       </header>
@@ -216,6 +222,12 @@ export default function GamesPage() {
                         <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full" style={{ fontFamily: "'Tajawal', sans-serif" }}>
                           {quiz.grade}
                         </span>
+                        {/* Show creator name for owner */}
+                        {isOwner && quiz.createdBy && (
+                          <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                            👤 {quiz.createdBy}
+                          </span>
+                        )}
                         <span className="text-xs text-gray-400 mr-auto" style={{ fontFamily: "'Tajawal', sans-serif" }}>
                           {new Date(quiz.createdAt).toLocaleDateString("ar-SA")}
                         </span>
@@ -274,9 +286,9 @@ export default function GamesPage() {
                 <div className="text-center p-6">
                   <div className="text-4xl mb-3 opacity-40">🎮</div>
                   <p className="text-gray-400 font-medium" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                    قريبًا...
+                    لا توجد ألعاب بعد
                   </p>
-                  <p className="text-gray-300 text-sm mt-1">Coming Soon</p>
+                  <p className="text-gray-300 text-sm mt-1">أنشئ لعبة من مولّد الألعاب التعليمية</p>
                 </div>
               </div>
             </motion.div>

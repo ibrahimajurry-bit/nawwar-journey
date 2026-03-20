@@ -32,6 +32,7 @@ export const generatedQuizzes = mysqlTable("generated_quizzes", {
   grade: varchar("grade", { length: 50 }).notNull(),
   storageUrl: text("storageUrl").notNull(),
   storageKey: varchar("storageKey", { length: 512 }).notNull(),
+  createdBy: varchar("createdBy", { length: 100 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

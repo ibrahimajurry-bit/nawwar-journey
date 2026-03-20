@@ -36,6 +36,13 @@
       "when": 1773887949845,
       "tag": "0004_large_meggan",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1774029700853,
+      "tag": "0005_perpetual_junta",
+      "breakpoints": true
     }
   ]
 }

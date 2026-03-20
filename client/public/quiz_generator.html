@@ -641,10 +641,11 @@ async function generateQuiz() {
         // Auto-save to server
         showStatus('loading', '💾 جارٍ حفظ اللعبة...', true);
         try {
+            const createdBy = localStorage.getItem('teacherName') || '';
             const saveRes = await fetch('/api/quiz/save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, grade, htmlContent: generatedHTML })
+                body: JSON.stringify({ title, grade, htmlContent: generatedHTML, createdBy })
             });
             const saveData = await saveRes.json();
             if (saveRes.ok && saveData.success) {

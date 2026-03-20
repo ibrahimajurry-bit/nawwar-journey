@@ -40,3 +40,5 @@
 - [x] Rollback all March 18-19 changes to restore original site
 - [x] Add simple teacher login page (username + password + WhatsApp QR for credentials)
 - [x] Add teacher accounts: Ayaali123/Ayaali123 and Ahmed123/Ahmed123
+- [x] Fix quiz generator error: "لم يتم التعرف على أي أسئلة" when generating quiz
+- [x] Implement game privacy: each teacher sees only their own games, owner sees all

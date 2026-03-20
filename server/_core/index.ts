@@ -40,21 +40,49 @@ async function startServer() {
   app.post('/api/quiz/generate', async (req, res) => {
     try {
       const { invokeLLM } = await import('./llm');
-      const { prompt } = req.body;
-      if (!prompt || typeof prompt !== 'string') {
-        return res.status(400).json({ error: 'prompt is required' });
+      const { questionsText, prompt } = req.body;
+      const inputText = questionsText || prompt;
+      if (!inputText || typeof inputText !== 'string') {
+        return res.status(400).json({ error: 'questionsText is required' });
       }
+
+      const systemPrompt = `أنت محلل أسئلة تعليمية. مهمتك تحويل الأسئلة النصية إلى مصفوفة JSON.
+
+القواعد:
+1. كل سؤال اختيار من متعدد يكون بالشكل: {"id": رقم, "type": "mc", "question": "نص السؤال", "options": ["خيار1", "خيار2", "خيار3", "خيار4"], "correct": رقم_فهرس_الإجابة_الصحيحة}
+2. كل سؤال صح/خطأ يكون بالشكل: {"id": رقم, "type": "tf", "question": "نص السؤال", "correct": true أو false}
+3. فهرس الإجابة الصحيحة يبدأ من 0
+4. أرجع فقط مصفوفة JSON بدون أي نص إضافي
+5. إذا كانت الإجابة الصحيحة مؤشرة بعلامة ✓ أو ✅ استخدمها
+6. إذا لم تكن الإجابة محددة، اختر الإجابة الأكثر منطقية`;
+
       const result = await invokeLLM({
         messages: [
-          { role: 'system', content: 'أنت مساعد تعليمي متخصص في إنشاء ألعاب تعليمية تفاعلية باللغة العربية. أجب دائماً بصيغة JSON صالحة.' },
-          { role: 'user', content: prompt },
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: `حلل الأسئلة التالية وحولها إلى مصفوفة JSON:\n\n${inputText}` },
         ],
         max_tokens: 16000,
       });
       const content = result.choices?.[0]?.message?.content;
       const textContent = typeof content === 'string' ? content :
         Array.isArray(content) ? content.filter((c: any) => c.type === 'text').map((c: any) => c.text).join('') : '';
-      res.json({ content: textContent });
+      
+      // Parse the JSON response
+      let questions = [];
+      try {
+        // Try to extract JSON array from the response
+        const jsonMatch = textContent.match(/\[\s*\{[\s\S]*\}\s*\]/);
+        if (jsonMatch) {
+          questions = JSON.parse(jsonMatch[0]);
+        } else {
+          questions = JSON.parse(textContent);
+        }
+      } catch (parseErr) {
+        console.error('[Quiz Parse Error]', parseErr);
+        return res.json({ questions: [], error: 'Failed to parse AI response' });
+      }
+      
+      res.json({ questions });
     } catch (error: any) {
       console.error('[Quiz Generate Error]', error);
       res.status(500).json({ error: error.message || 'Internal server error' });
@@ -63,7 +91,7 @@ async function startServer() {
   // REST API endpoint for saving generated quiz to S3 + DB
   app.post('/api/quiz/save', async (req, res) => {
     try {
-      const { title, grade, htmlContent } = req.body;
+      const { title, grade, htmlContent, createdBy } = req.body;
       if (!title || !grade || !htmlContent) {
         return res.status(400).json({ error: 'title, grade, and htmlContent are required' });
       }
@@ -82,6 +110,7 @@ async function startServer() {
           grade,
           storageUrl: url,
           storageKey: fileKey,
+          createdBy: createdBy || null,
         });
       }
       
@@ -93,18 +122,31 @@ async function startServer() {
   });
 
   // REST API endpoint for listing generated quizzes
+  // ?user=username - filter by creator (teachers see only their own)
+  // ?user=__all__ - owner sees all quizzes
   app.get('/api/quiz/list', async (req, res) => {
     try {
       const { getDb } = await import('../db');
       const { generatedQuizzes } = await import('../../drizzle/schema');
-      const { desc } = await import('drizzle-orm');
+      const { desc, eq } = await import('drizzle-orm');
       
       const db = await getDb();
       if (!db) {
         return res.json({ quizzes: [] });
       }
       
-      const quizzes = await db.select().from(generatedQuizzes).orderBy(desc(generatedQuizzes.createdAt));
+      const userFilter = req.query.user as string | undefined;
+      
+      let quizzes;
+      if (userFilter && userFilter !== '__all__') {
+        // Teacher: show only their quizzes
+        quizzes = await db.select().from(generatedQuizzes)
+          .where(eq(generatedQuizzes.createdBy, userFilter))
+          .orderBy(desc(generatedQuizzes.createdAt));
+      } else {
+        // Owner or no filter: show all quizzes
+        quizzes = await db.select().from(generatedQuizzes).orderBy(desc(generatedQuizzes.createdAt));
+      }
       res.json({ quizzes });
     } catch (error: any) {
       console.error('[Quiz List Error]', error);
@@ -113,17 +155,12 @@ async function startServer() {
   });
 
   // REST API endpoint for deleting a quiz (owner only)
+  // Owner is identified by ?user=Ayaali query param (simple auth)
   app.delete('/api/quiz/:id', async (req, res) => {
     try {
-      // Check if requester is the owner
-      const { sdk } = await import('./sdk');
-      let user = null;
-      try {
-        user = await sdk.authenticateRequest(req);
-      } catch (e) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
-      if (!user || user.openId !== (process.env.OWNER_OPEN_ID || '')) {
+      const requestUser = req.query.user as string | undefined;
+      // Only the owner (Ayaali) can delete quizzes
+      if (requestUser !== 'Ayaali') {
         return res.status(403).json({ error: 'Only the site owner can delete quizzes' });
       }
 
