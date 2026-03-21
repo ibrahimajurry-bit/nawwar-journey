@@ -27,6 +27,42 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
   throw new Error(`No available port found starting from ${startPort}`);
 }
 
+// In-memory rate limiter for login attempts
+const loginAttempts = new Map<string, { count: number; lockedUntil: number }>();
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
+
+function checkRateLimit(ip: string): { allowed: boolean; remainingMs?: number } {
+  const now = Date.now();
+  const entry = loginAttempts.get(ip);
+  if (!entry) return { allowed: true };
+  if (entry.lockedUntil > now) {
+    return { allowed: false, remainingMs: entry.lockedUntil - now };
+  }
+  if (entry.count >= MAX_ATTEMPTS) {
+    // Lock them out
+    entry.lockedUntil = now + LOCKOUT_MS;
+    loginAttempts.set(ip, entry);
+    return { allowed: false, remainingMs: LOCKOUT_MS };
+  }
+  return { allowed: true };
+}
+
+function recordFailedAttempt(ip: string) {
+  const now = Date.now();
+  const entry = loginAttempts.get(ip) || { count: 0, lockedUntil: 0 };
+  if (entry.lockedUntil > now) return; // already locked
+  entry.count += 1;
+  if (entry.count >= MAX_ATTEMPTS) {
+    entry.lockedUntil = now + LOCKOUT_MS;
+  }
+  loginAttempts.set(ip, entry);
+}
+
+function clearAttempts(ip: string) {
+  loginAttempts.delete(ip);
+}
+
 async function startServer() {
   const app = express();
   const server = createServer(app);
@@ -277,11 +313,25 @@ async function startServer() {
         return res.status(403).json({ error: 'Account pending approval' });
       }
 
-      const valid = await bcrypt.compare(password, teacher.passwordHash);
-      if (!valid) {
-        return res.status(401).json({ error: 'Invalid email or password' });
+      const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+      const rateCheck = checkRateLimit(ip);
+      if (!rateCheck.allowed) {
+        const mins = Math.ceil((rateCheck.remainingMs || LOCKOUT_MS) / 60000);
+        return res.status(429).json({ error: `تم تجاوز عدد المحاولات المسموح بها. يرجى الانتظار ${mins} دقيقة قبل المحاولة مجدداً.` });
       }
 
+      const valid = await bcrypt.compare(password, teacher.passwordHash);
+      if (!valid) {
+        recordFailedAttempt(ip);
+        const entry = loginAttempts.get(ip);
+        const remaining = MAX_ATTEMPTS - (entry?.count || 0);
+        if (remaining <= 0) {
+          return res.status(429).json({ error: `تم تجاوز عدد المحاولات. حسابك محظور مؤقتاً لمدة 15 دقيقة.` });
+        }
+        return res.status(401).json({ error: `بيانات الدخول غير صحيحة. تبقّى لك ${remaining} محاولة.` });
+      }
+
+      clearAttempts(ip);
       res.json({ success: true, name: teacher.name, email: teacher.email });
     } catch (error: any) {
       console.error('[Teacher Email Login Error]', error);
@@ -356,7 +406,16 @@ async function startServer() {
       const { eq } = await import('drizzle-orm');
       const db = await getDb();
       if (!db) return res.status(500).json({ error: 'Database not available' });
+      const prevTeachers = await db.select().from(registeredTeachers).where(eq(registeredTeachers.id, teacherId));
       await db.update(registeredTeachers).set({ approved }).where(eq(registeredTeachers.id, teacherId));
+
+      // Send approval email if status changed to 'approved'
+      if (approved === 'approved' && prevTeachers.length > 0) {
+        const teacher = prevTeachers[0];
+        const { sendAccountApprovalEmail } = await import('../email');
+        await sendAccountApprovalEmail(teacher.email, teacher.name).catch(console.error);
+      }
+
       res.json({ success: true });
     } catch (error: any) {
       console.error('[Admin Update Teacher Error]', error);

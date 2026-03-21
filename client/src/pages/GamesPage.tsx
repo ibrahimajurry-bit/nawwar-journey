@@ -5,7 +5,7 @@
  */
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowRight, Gamepad2, BookOpen, Sparkles, Loader2, Trash2, Search } from "lucide-react";
+import { ArrowRight, Gamepad2, BookOpen, Sparkles, Loader2, Trash2, Search, Filter } from "lucide-react";
 import { useEffect, useState } from "react";
 
 
@@ -14,6 +14,7 @@ interface SavedQuiz {
   id: number;
   title: string;
   grade: string;
+  subject?: string;
   storageUrl: string;
   createdBy: string | null;
   createdAt: string;
@@ -43,6 +44,22 @@ export default function GamesPage() {
   const [deleting, setDeleting] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [gradeFilter, setGradeFilter] = useState("");
+  const [subjectFilter, setSubjectFilter] = useState("");
+
+  const SUBJECTS = [
+    { value: "", label: "جميع المواد" },
+    { value: "عربي", label: "عربي" },
+    { value: "رياضيات", label: "رياضيات" },
+    { value: "علوم", label: "علوم" },
+    { value: "إنجليزي", label: "إنجليزي" },
+    { value: "دينية", label: "دينية" },
+    { value: "تاريخ", label: "تاريخ" },
+    { value: "جغرافيا", label: "جغرافيا" },
+    { value: "تربية وطنية", label: "تربية وطنية" },
+    { value: "حاسوب", label: "حاسوب" },
+    { value: "فنون", label: "فنون" },
+    { value: "أخرى", label: "أخرى" },
+  ];
 
   // Get current teacher info from localStorage
   const teacherName = localStorage.getItem("teacherName") || "";
@@ -134,17 +151,29 @@ export default function GamesPage() {
             />
           </div>
           {savedQuizzes.length > 0 && (
-            <select
-              value={gradeFilter}
-              onChange={(e) => setGradeFilter(e.target.value)}
-              className="px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-600"
-              style={{ fontFamily: "'Tajawal', sans-serif" }}
-            >
-              <option value="">جميع الصفوف</option>
-              {Array.from(new Set(savedQuizzes.map(q => q.grade).filter(Boolean))).map(grade => (
-                <option key={grade} value={grade}>{grade}</option>
-              ))}
-            </select>
+            <>
+              <select
+                value={gradeFilter}
+                onChange={(e) => setGradeFilter(e.target.value)}
+                className="px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-600"
+                style={{ fontFamily: "'Tajawal', sans-serif" }}
+              >
+                <option value="">جميع الصفوف</option>
+                {Array.from(new Set(savedQuizzes.map(q => q.grade).filter(Boolean))).map(grade => (
+                  <option key={grade} value={grade}>{grade}</option>
+                ))}
+              </select>
+              <select
+                value={subjectFilter}
+                onChange={(e) => setSubjectFilter(e.target.value)}
+                className="px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 text-gray-600"
+                style={{ fontFamily: "'Tajawal', sans-serif" }}
+              >
+                {SUBJECTS.map(s => (
+                  <option key={s.value} value={s.value}>{s.label}</option>
+                ))}
+              </select>
+            </>
           )}
         </div>
       </div>
@@ -234,7 +263,8 @@ export default function GamesPage() {
             .filter(q => {
               const matchSearch = !searchQuery || q.title.toLowerCase().includes(searchQuery.toLowerCase()) || (q.grade && q.grade.toLowerCase().includes(searchQuery.toLowerCase()));
               const matchGrade = !gradeFilter || q.grade === gradeFilter;
-              return matchSearch && matchGrade;
+              const matchSubject = !subjectFilter || (q.subject && q.subject === subjectFilter);
+              return matchSearch && matchGrade && matchSubject;
             })
             .map((quiz, idx) => {
             const gradientClass = quizGradients[idx % quizGradients.length];

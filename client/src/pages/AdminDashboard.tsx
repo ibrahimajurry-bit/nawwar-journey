@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Trash2, Users, Gamepad2, CheckCircle, XCircle, Clock } from "lucide-react";
+import { ArrowRight, Trash2, Users, Gamepad2, CheckCircle, XCircle, Clock, TrendingUp, UserCheck } from "lucide-react";
 
 interface Teacher {
   id: number;
@@ -141,22 +141,66 @@ export default function AdminDashboard() {
       <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <div className="text-2xl font-bold text-[#1a6b3c]">{teachers.length + hardcodedTeachers.length}</div>
+            <div className="flex items-center gap-2 mb-1">
+              <Users size={18} className="text-[#1a6b3c]" />
+              <div className="text-2xl font-bold text-[#1a6b3c]">{teachers.length + hardcodedTeachers.length}</div>
+            </div>
             <div className="text-sm text-gray-500">إجمالي المعلمين</div>
           </div>
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <div className="text-2xl font-bold text-blue-600">{teachers.length}</div>
-            <div className="text-sm text-gray-500">مسجلين ذاتياً</div>
+            <div className="flex items-center gap-2 mb-1">
+              <UserCheck size={18} className="text-blue-600" />
+              <div className="text-2xl font-bold text-blue-600">{teachers.filter(t => t.approved === 'approved').length}</div>
+            </div>
+            <div className="text-sm text-gray-500">معلمون مفعّلون</div>
           </div>
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <div className="text-2xl font-bold text-purple-600">{quizzes.length}</div>
+            <div className="flex items-center gap-2 mb-1">
+              <Gamepad2 size={18} className="text-purple-600" />
+              <div className="text-2xl font-bold text-purple-600">{quizzes.length}</div>
+            </div>
             <div className="text-sm text-gray-500">إجمالي الألعاب</div>
           </div>
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <div className="text-2xl font-bold text-amber-600">{teachers.filter(t => t.approved === "pending").length}</div>
+            <div className="flex items-center gap-2 mb-1">
+              <Clock size={18} className="text-amber-600" />
+              <div className="text-2xl font-bold text-amber-600">{teachers.filter(t => t.approved === 'pending').length}</div>
+            </div>
             <div className="text-sm text-gray-500">بانتظار الموافقة</div>
           </div>
         </div>
+
+        {/* Per-teacher games stats */}
+        {teachers.filter(t => t.approved === 'approved').length > 0 && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+            <div className="px-5 py-3 bg-gray-50 border-b border-gray-100 flex items-center gap-2">
+              <TrendingUp size={16} className="text-[#1a6b3c]" />
+              <h3 className="font-bold text-gray-700 text-sm">إحصائيات الألعاب لكل معلم</h3>
+            </div>
+            <div className="divide-y divide-gray-50">
+              {teachers.filter(t => t.approved === 'approved').map(t => {
+                const count = quizzes.filter(q => q.createdBy === t.name).length;
+                const pct = quizzes.length > 0 ? Math.round((count / quizzes.length) * 100) : 0;
+                return (
+                  <div key={t.id} className="flex items-center gap-3 px-5 py-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs flex-shrink-0">
+                      {t.name.charAt(0)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-semibold text-gray-700 truncate">{t.name}</span>
+                        <span className="text-xs text-gray-500 mr-2">{count} لعبة</span>
+                      </div>
+                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-l from-[#1a6b3c] to-[#1b5e8a] rounded-full" style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6">

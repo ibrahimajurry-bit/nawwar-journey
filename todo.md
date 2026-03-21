@@ -82,3 +82,7 @@
 - [x] Add "نسيت كلمة المرور" link on login page
 - [x] Build ForgotPassword page (enter email)
 - [x] Build ResetPassword page (enter new password with token from URL)
+- [x] Add login rate limiting (5 failed attempts → temporary lockout)
+- [x] Add account approval email sent to teacher when admin approves their account
+- [x] Add admin dashboard stats (games count per teacher with progress bars)
+- [x] Add game subject filter (Arabic, Math, Science, English, etc.)
