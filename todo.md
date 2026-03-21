@@ -98,3 +98,5 @@
 - [ ] Redesign TeacherLogin page with premium look
 - [ ] Redesign Landing page with professional layout
 - [ ] Redesign GamesPage with polished cards and layout
+- [x] Fix game URLs to use clean slugs like /games/play/:id instead of CDN URLs
+- [x] Restore old icon card design on Landing page (white cards with large colored icons)

@@ -47,6 +47,11 @@ export default function GamesPage() {
   const [qrModal, setQrModal] = useState<{ title: string; url: string } | null>(null);
   const qrRef = useRef<HTMLDivElement>(null);
 
+  // Build clean public URL for a quiz
+  const getCleanUrl = (quiz: SavedQuiz) => {
+    return `${window.location.origin}/games/play/${quiz.id}`;
+  };
+
   const handleShowQR = (e: React.MouseEvent, title: string, url: string) => {
     e.preventDefault();
     e.stopPropagation();
@@ -97,7 +102,8 @@ export default function GamesPage() {
     link.click();
   };
 
-  const handleCopyLink = (e: React.MouseEvent, quizId: number, url: string) => {
+  const handleCopyLink = (e: React.MouseEvent, quizId: number, url: string, cleanUrl?: string) => {
+    url = cleanUrl || url;
     e.preventDefault();
     e.stopPropagation();
     navigator.clipboard.writeText(url).then(() => {
@@ -334,7 +340,7 @@ export default function GamesPage() {
             return (
               <motion.div key={quiz.id} custom={idx + 2} variants={fadeUp} initial="hidden" animate="visible">
                 <div className="group relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-purple-200 hover:-translate-y-1">
-                  <a href={quiz.storageUrl} target="_blank" rel="noopener noreferrer">
+                  <a href={getCleanUrl(quiz)} target="_blank" rel="noopener noreferrer">
                     <div className={`h-40 bg-gradient-to-br ${gradientClass} flex items-center justify-center relative overflow-hidden`}>
                       <div className="absolute inset-0 opacity-20">
                         <div className="absolute top-4 right-4 w-20 h-20 rounded-full bg-white/20 blur-2xl" />
@@ -379,7 +385,7 @@ export default function GamesPage() {
                   </a>
                   {/* QR code button */}
                   <button
-                    onClick={(e) => handleShowQR(e, quiz.title, quiz.storageUrl)}
+                    onClick={(e) => handleShowQR(e, quiz.title, getCleanUrl(quiz))}
                     className="absolute top-14 right-3 z-20 bg-white/90 hover:bg-white text-green-600 rounded-full p-2 shadow-lg transition-all opacity-0 group-hover:opacity-100"
                     title="عرض رمز QR"
                   >
@@ -387,7 +393,7 @@ export default function GamesPage() {
                   </button>
                   {/* Copy link button - always visible for all teachers */}
                   <button
-                    onClick={(e) => handleCopyLink(e, quiz.id, quiz.storageUrl)}
+                    onClick={(e) => handleCopyLink(e, quiz.id, quiz.storageUrl, getCleanUrl(quiz))}
                     className="absolute top-3 right-3 z-20 bg-white/90 hover:bg-white text-purple-600 rounded-full p-2 shadow-lg transition-all opacity-0 group-hover:opacity-100"
                     title="نسخ رابط اللعبة"
                   >

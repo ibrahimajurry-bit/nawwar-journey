@@ -9,15 +9,24 @@ import { useState } from "react";
 
 const categories = [
   {
+    id: "games",
+    title: "الألعاب التعليمية",
+    subtitle: "Educational Games",
+    description: "تصفّح مكتبة ألعابك وشاركها مع طلابك",
+    icon: Gamepad2,
+    href: "/games",
+    iconBg: "linear-gradient(135deg, #f97316, #fb923c)",
+    iconColor: "white",
+  },
+  {
     id: "quiz-generator",
     title: "منشئ الألعاب التعليمية",
     subtitle: "AI Quiz Generator",
     description: "أنشئ ألعاباً تفاعلية بالذكاء الاصطناعي في ثوانٍ",
     icon: Wand2,
     href: "/apps/quiz-generator",
-    accent: "#7c3aed",
-    bg: "oklch(0.97 0.02 290)",
-    border: "oklch(0.88 0.06 290)",
+    iconBg: "linear-gradient(135deg, #9333ea, #a855f7)",
+    iconColor: "white",
   },
   {
     id: "qr",
@@ -26,20 +35,8 @@ const categories = [
     description: "أنشئ أكواد QR مخصصة لدروسك ومحتواك",
     icon: QrCode,
     href: "/apps/qr-generator",
-    accent: "#1a6b3c",
-    bg: "oklch(0.97 0.02 155)",
-    border: "oklch(0.88 0.06 155)",
-  },
-  {
-    id: "games",
-    title: "الألعاب التعليمية",
-    subtitle: "Educational Games",
-    description: "تصفّح مكتبة ألعابك وشاركها مع طلابك",
-    icon: Gamepad2,
-    href: "/games",
-    accent: "#ea580c",
-    bg: "oklch(0.97 0.03 55)",
-    border: "oklch(0.88 0.07 55)",
+    iconBg: "linear-gradient(135deg, #1a6b3c, #22c55e)",
+    iconColor: "white",
   },
 ];
 
@@ -171,22 +168,20 @@ export default function Landing() {
               <motion.div key={cat.id} variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }}>
                 <Link href={cat.href}>
                   <div
-                    className="group cursor-pointer h-full flex flex-col p-6 rounded-2xl transition-all duration-300 hover:-translate-y-1"
-                    style={{ background: 'white', border: `1.5px solid ${cat.border}`, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = `0 8px 32px rgba(0,0,0,0.12), 0 0 0 1px ${cat.border}`; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.06)'; }}
+                    className="group cursor-pointer h-full flex flex-col items-center text-center p-8 rounded-2xl transition-all duration-300 hover:-translate-y-2"
+                    style={{ background: 'white', border: '1.5px solid #e5e7eb', boxShadow: '0 2px 16px rgba(0,0,0,0.06)' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 12px 40px rgba(0,0,0,0.12)'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 16px rgba(0,0,0,0.06)'; }}
                   >
-                    <div className="flex items-start justify-between mb-5">
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: cat.bg }}>
-                        <Icon size={22} style={{ color: cat.accent }} />
-                      </div>
-                      <div className="w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: cat.bg }}>
-                        <ArrowLeft size={14} style={{ color: cat.accent }} />
-                      </div>
+                    {/* Large colored icon square - like the original design */}
+                    <div
+                      className="w-24 h-24 rounded-2xl flex items-center justify-center mb-5 shadow-lg"
+                      style={{ background: cat.iconBg }}
+                    >
+                      <Icon size={42} style={{ color: cat.iconColor }} />
                     </div>
-                    <h3 className="text-base font-bold text-gray-900 mb-1">{cat.title}</h3>
-                    <p className="text-xs font-medium mb-2" style={{ color: cat.accent }}>{cat.subtitle}</p>
-                    <p className="text-xs text-gray-400 leading-relaxed mt-auto">{cat.description}</p>
+                    <h3 className="text-lg font-bold text-gray-900 mb-1">{cat.title}</h3>
+                    <p className="text-sm text-gray-400">{cat.subtitle}</p>
                   </div>
                 </Link>
               </motion.div>

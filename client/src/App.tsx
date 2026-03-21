@@ -16,6 +16,7 @@ import TeacherLogin from "./pages/TeacherLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import GamePlayer from "./pages/GamePlayer";
 
 function ProtectedRouter() {
   return (
@@ -26,6 +27,7 @@ function ProtectedRouter() {
       <Route path="/games/ishara" component={IsharaQuiz} />
       <Route path="/apps/qr-generator" component={QRGenerator} />
       <Route path="/apps/quiz-generator" component={QuizGeneratorApp} />
+      <Route path="/games/play/:id" component={GamePlayer} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
@@ -56,6 +58,7 @@ function Router() {
       <Switch>
         <Route path="/forgot-password" component={ForgotPassword} />
         <Route path="/reset-password" component={ResetPassword} />
+        <Route path="/games/play/:id" component={GamePlayer} />
         <Route>
           <TeacherLogin
             onLogin={() => {

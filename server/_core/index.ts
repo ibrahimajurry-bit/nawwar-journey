@@ -543,6 +543,29 @@ async function startServer() {
     }
   });
 
+  // Public endpoint: get game URL by ID (for clean /games/play/:id links)
+  app.get('/api/quiz/:id/url', async (req, res) => {
+    try {
+      const quizId = parseInt(req.params.id);
+      if (isNaN(quizId)) {
+        return res.status(400).json({ error: 'Invalid quiz ID' });
+      }
+      const { getDb } = await import('../db');
+      const { generatedQuizzes } = await import('../../drizzle/schema');
+      const { eq } = await import('drizzle-orm');
+      const db = await getDb();
+      if (!db) return res.status(500).json({ error: 'Database not available' });
+      const quizzes = await db.select().from(generatedQuizzes).where(eq(generatedQuizzes.id, quizId));
+      if (quizzes.length === 0) {
+        return res.status(404).json({ error: 'Game not found' });
+      }
+      res.json({ url: quizzes[0].storageUrl, title: quizzes[0].title });
+    } catch (error: any) {
+      console.error('[Quiz URL Error]', error);
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  });
+
   // tRPC API
   app.use(
     "/api/trpc",
