@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Lock, MessageCircle, UserPlus, Mail, User } from "lucide-react";
+import { Lock, MessageCircle, UserPlus, Mail, User, PartyPopper, Sparkles, Gamepad2, QrCode, BookOpen } from "lucide-react";
 
 interface TeacherLoginProps {
   onLogin: (username: string) => void;
@@ -31,6 +31,8 @@ export default function TeacherLogin({ onLogin }: TeacherLoginProps) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [welcomeName, setWelcomeName] = useState("");
 
   // Hardcoded accounts (owner + pre-assigned teachers)
   const hardcodedAccounts: Record<string, { password: string; role: "owner" | "teacher" }> = {
@@ -125,10 +127,11 @@ export default function TeacherLogin({ onLogin }: TeacherLoginProps) {
           setError(data.error || "حدث خطأ في التسجيل");
         }
       } else {
-        // Auto-login after registration
+        // Show welcome screen before auto-login
+        setWelcomeName(data.name);
+        setShowWelcome(true);
         localStorage.setItem("teacherLoggedIn", "true");
         localStorage.setItem("teacherName", data.name);
-        onLogin(data.name);
       }
     } catch {
       setError("حدث خطأ في الاتصال، حاول مرة أخرى");
@@ -136,6 +139,88 @@ export default function TeacherLogin({ onLogin }: TeacherLoginProps) {
       setLoading(false);
     }
   };
+
+  // Welcome screen after successful registration
+  if (showWelcome) {
+    return (
+      <div dir="rtl" className="min-h-screen bg-gradient-to-br from-[#1a6b3c] via-[#1e7a44] to-[#1b5e8a] flex items-center justify-center p-4">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" />
+        </div>
+        <div className="relative z-10 w-full max-w-md">
+          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+            {/* Celebration Header */}
+            <div className="bg-gradient-to-br from-[#1a6b3c] to-[#1b5e8a] px-6 py-8 text-center text-white relative overflow-hidden">
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-4 right-8 w-16 h-16 rounded-full bg-yellow-300/40 blur-2xl" />
+                <div className="absolute bottom-4 left-8 w-20 h-20 rounded-full bg-green-300/30 blur-2xl" />
+              </div>
+              <div className="relative z-10">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/20 mb-4">
+                  <PartyPopper className="w-8 h-8 text-yellow-300" />
+                </div>
+                <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                  أهلاً وسهلاً {welcomeName}! 🎉
+                </h1>
+                <p className="text-white/80 text-sm" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                  تم إنشاء حسابك بنجاح في رحلة نوّار
+                </p>
+              </div>
+            </div>
+
+            {/* Features */}
+            <div className="p-6">
+              <p className="text-gray-600 text-sm text-center mb-5" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                يمكنك الآن استخدام جميع أدوات المنصة:
+              </p>
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-purple-50 border border-purple-100">
+                  <div className="w-10 h-10 rounded-lg bg-purple-500 flex items-center justify-center flex-shrink-0">
+                    <Sparkles size={18} className="text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-800 text-sm" style={{ fontFamily: "'Tajawal', sans-serif" }}>منشئ الألعاب التعليمية</p>
+                    <p className="text-gray-400 text-xs">أنشئ ألعاب تفاعلية بالذكاء الاصطناعي</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-green-50 border border-green-100">
+                  <div className="w-10 h-10 rounded-lg bg-green-600 flex items-center justify-center flex-shrink-0">
+                    <QrCode size={18} className="text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-800 text-sm" style={{ fontFamily: "'Tajawal', sans-serif" }}>مولّد أكواد QR</p>
+                    <p className="text-gray-400 text-xs">أنشئ أكواد QR مخصصة لدروسك</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-orange-50 border border-orange-100">
+                  <div className="w-10 h-10 rounded-lg bg-orange-500 flex items-center justify-center flex-shrink-0">
+                    <Gamepad2 size={18} className="text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-800 text-sm" style={{ fontFamily: "'Tajawal', sans-serif" }}>مكتبة الألعاب</p>
+                    <p className="text-gray-400 text-xs">تصفّح وشارك ألعابك التعليمية</p>
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-center text-xs text-gray-400 mb-4" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                📧 تم إرسال رسالة ترحيبية إلى بريدك الإلكتروني
+              </p>
+
+              <Button
+                onClick={() => onLogin(welcomeName)}
+                className="w-full bg-gradient-to-r from-[#1a6b3c] to-[#1b5e8a] text-white font-semibold py-3 rounded-xl text-base"
+                style={{ fontFamily: "'Tajawal', sans-serif" }}
+              >
+                ابدأ الاستكشاف →
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div dir="rtl" className="min-h-screen bg-gradient-to-br from-[#1a6b3c] via-[#1e7a44] to-[#1b5e8a] flex items-center justify-center p-4">

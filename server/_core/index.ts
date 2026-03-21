@@ -234,6 +234,16 @@ async function startServer() {
         console.warn('[Notification] Failed to notify about new teacher:', notifErr);
       }
 
+      // Send welcome email to the new teacher (non-blocking)
+      try {
+        const { sendWelcomeEmail } = await import('../email');
+        sendWelcomeEmail(email.toLowerCase().trim(), name.trim()).catch(err => {
+          console.warn('[Email] Welcome email failed (non-blocking):', err);
+        });
+      } catch (emailErr) {
+        console.warn('[Email] Failed to send welcome email:', emailErr);
+      }
+
       res.json({ success: true, name: name.trim() });
     } catch (error: any) {
       console.error('[Teacher Register Error]', error);

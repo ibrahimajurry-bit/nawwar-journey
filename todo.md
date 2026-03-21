@@ -72,3 +72,5 @@
 - [x] Add admin dashboard page for owner to manage teachers and view all games
 - [x] Add notification when new teacher registers
 - [x] Add search and filter by grade in games page
+- [x] Add on-screen welcome message after new teacher registration
+- [x] Add welcome email sent to new teacher upon registration
