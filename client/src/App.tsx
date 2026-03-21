@@ -14,6 +14,8 @@ import IsharaQuiz from "./pages/IsharaQuiz";
 import QuizGeneratorApp from "./pages/QuizGeneratorApp";
 import TeacherLogin from "./pages/TeacherLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function ProtectedRouter() {
   return (
@@ -51,11 +53,17 @@ function Router() {
 
   if (!isLoggedIn) {
     return (
-      <TeacherLogin
-        onLogin={() => {
-          setIsLoggedIn(true);
-        }}
-      />
+      <Switch>
+        <Route path="/forgot-password" component={ForgotPassword} />
+        <Route path="/reset-password" component={ResetPassword} />
+        <Route>
+          <TeacherLogin
+            onLogin={() => {
+              setIsLoggedIn(true);
+            }}
+          />
+        </Route>
+      </Switch>
     );
   }
 

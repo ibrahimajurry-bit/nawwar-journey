@@ -15,6 +15,134 @@ function getResendClient() {
   return new Resend(apiKey);
 }
 
+export async function sendPasswordResetEmail(to: string, teacherName: string, resetUrl: string): Promise<boolean> {
+  const resend = getResendClient();
+  if (!resend) return false;
+
+  const fromEmail = "رحلة نوّار <info@nawwarjourney.qpon>";
+
+  const htmlContent = `
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:#f0f4ff;">
+  <div style="max-width:580px;margin:30px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#1b5e8a,#1a3a6b);padding:36px 24px;text-align:center;">
+      <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663029980891/S9UfAnxEfs6upsP98hCzwU/nawwar-logo-AWuZdjrAyTDDSJocatLxwi.png"
+           alt="Nawwar Journey"
+           style="width:64px;height:64px;border-radius:14px;margin-bottom:14px;display:block;margin-left:auto;margin-right:auto;" />
+      <h1 style="color:#ffffff;font-size:22px;margin:0 0 6px;font-weight:700;">
+        🔐 إعادة تعيين كلمة المرور
+      </h1>
+      <p style="color:rgba(255,255,255,0.7);font-size:13px;margin:0;">
+        Password Reset Request — Nawwar Journey
+      </p>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:32px 28px;">
+      <p style="font-size:16px;color:#222;line-height:1.8;margin:0 0 8px;font-weight:600;">
+        أهلاً ${teacherName}،
+      </p>
+      <p style="font-size:15px;color:#555;line-height:1.9;margin:0 0 20px;">
+        تلقّينا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك في منصة <strong>رحلة نوّار</strong>.
+        اضغط على الزر أدناه لإنشاء كلمة مرور جديدة:
+      </p>
+
+      <!-- Warning Box -->
+      <div style="background:#fff8e1;border-right:4px solid #f59e0b;border-radius:10px;padding:14px 16px;margin-bottom:24px;">
+        <p style="margin:0;font-size:13px;color:#92400e;">
+          ⏰ <strong>هذا الرابط صالح لمدة ساعة واحدة فقط</strong> من وقت إرسال هذا الإيميل.
+        </p>
+      </div>
+
+      <!-- CTA Button -->
+      <div style="text-align:center;margin:24px 0;">
+        <a href="${resetUrl}"
+           style="display:inline-block;background:linear-gradient(135deg,#1b5e8a,#1a3a6b);color:#ffffff;text-decoration:none;padding:15px 44px;border-radius:12px;font-size:16px;font-weight:700;">
+          إعادة تعيين كلمة المرور ←
+        </a>
+      </div>
+
+      <!-- Fallback URL -->
+      <p style="font-size:12px;color:#999;text-align:center;margin:16px 0 8px;">
+        إذا لم يعمل الزر، انسخ الرابط التالي في متصفحك:
+      </p>
+      <p style="font-size:11px;color:#1b5e8a;text-align:center;word-break:break-all;margin:0 0 24px;">
+        ${resetUrl}
+      </p>
+
+      <!-- Security Note -->
+      <div style="background:#f0fdf4;border-right:4px solid #16a34a;border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+        <p style="margin:0;font-size:13px;color:#166534;">
+          🔒 <strong>لم تطلب إعادة التعيين؟</strong> تجاهل هذا الإيميل بأمان — لن يتغير حسابك.
+        </p>
+      </div>
+
+      <!-- Official Signature -->
+      <div style="border-top:2px solid #e8f0ff;padding-top:20px;margin-top:8px;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="vertical-align:middle;padding-left:16px;">
+              <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663029980891/S9UfAnxEfs6upsP98hCzwU/nawwar-logo-AWuZdjrAyTDDSJocatLxwi.png"
+                   alt="Nawwar Journey"
+                   style="width:44px;height:44px;border-radius:10px;display:block;" />
+            </td>
+            <td style="vertical-align:middle;padding-right:12px;">
+              <p style="margin:0;font-size:14px;font-weight:700;color:#1b5e8a;">فريق رحلة نوّار</p>
+              <p style="margin:2px 0 0;font-size:12px;color:#888;">Nawwar Journey — المنصة التعليمية التفاعلية</p>
+              <p style="margin:4px 0 0;font-size:12px;">
+                <a href="https://nawwarjourney.qpon" style="color:#1b5e8a;text-decoration:none;">🌐 nawwarjourney.qpon</a>
+                &nbsp;|&nbsp;
+                <a href="mailto:info@nawwarjourney.qpon" style="color:#1b5e8a;text-decoration:none;">✉️ info@nawwarjourney.qpon</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="background:#f8faff;padding:16px 24px;text-align:center;border-top:1px solid #eee;">
+      <p style="font-size:11px;color:#bbb;margin:0;">
+        © 2025 Nawwar Journey. جميع الحقوق محفوظة.
+      </p>
+      <p style="font-size:11px;margin:4px 0 0;">
+        <a href="https://nawwarjourney.qpon" style="color:#1b5e8a;text-decoration:none;">nawwarjourney.qpon</a>
+        &nbsp;·&nbsp;
+        <a href="mailto:info@nawwarjourney.qpon" style="color:#1b5e8a;text-decoration:none;">info@nawwarjourney.qpon</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: fromEmail,
+      to: [to],
+      subject: "🔐 إعادة تعيين كلمة المرور — Nawwar Journey",
+      html: htmlContent,
+    });
+
+    if (error) {
+      console.error("[Email] Resend password reset error:", error);
+      return false;
+    }
+
+    console.log(`[Email] Password reset email sent to ${to}, id: ${data?.id}`);
+    return true;
+  } catch (err) {
+    console.error("[Email] Failed to send password reset email:", err);
+    return false;
+  }
+}
+
 export async function sendWelcomeEmail(to: string, teacherName: string): Promise<boolean> {
   const resend = getResendClient();
   if (!resend) return false;

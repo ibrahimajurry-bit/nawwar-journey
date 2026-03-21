@@ -52,3 +52,16 @@ export const registeredTeachers = mysqlTable("registered_teachers", {
 
 export type RegisteredTeacher = typeof registeredTeachers.$inferSelect;
 export type InsertRegisteredTeacher = typeof registeredTeachers.$inferInsert;
+
+// Password reset tokens table
+export const passwordResetTokens = mysqlTable("password_reset_tokens", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull(),
+  token: varchar("token", { length: 128 }).notNull().unique(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  usedAt: timestamp("usedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+export type InsertPasswordResetToken = typeof passwordResetTokens.$inferInsert;

@@ -375,6 +375,15 @@ export default function TeacherLogin({ onLogin }: TeacherLoginProps) {
                     <Button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-[#1a6b3c] to-[#1b5e8a] text-white font-semibold py-3 rounded-xl text-base" style={{ fontFamily: "'Tajawal', sans-serif" }}>
                       {loading ? "جاري الدخول..." : "دخول"}
                     </Button>
+                    <div className="text-center pt-1">
+                      <a
+                        href="/forgot-password"
+                        className="text-sm text-blue-600 hover:underline"
+                        style={{ fontFamily: "'Tajawal', sans-serif" }}
+                      >
+                        نسيت كلمة المرور؟
+                      </a>
+                    </div>
                   </form>
                 )}
               </>

@@ -364,6 +364,94 @@ async function startServer() {
     }
   });
 
+  // Forgot Password: request reset email
+  app.post('/api/teacher/forgot-password', async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) return res.status(400).json({ error: 'Email is required' });
+
+      const { getDb } = await import('../db');
+      const { registeredTeachers, passwordResetTokens } = await import('../../drizzle/schema');
+      const { eq, and, gt } = await import('drizzle-orm');
+      const crypto = await import('crypto');
+      const { sendPasswordResetEmail } = await import('../email');
+
+      const db = await getDb();
+      if (!db) return res.status(500).json({ error: 'Database not available' });
+
+      const teachers = await db.select().from(registeredTeachers)
+        .where(eq(registeredTeachers.email, email.toLowerCase()));
+
+      // Always respond with success to avoid email enumeration
+      if (teachers.length === 0) {
+        return res.json({ success: true });
+      }
+
+      const teacher = teachers[0];
+      const token = crypto.randomBytes(48).toString('hex');
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+      await db.insert(passwordResetTokens).values({
+        email: teacher.email,
+        token,
+        expiresAt,
+      });
+
+      const origin = req.headers.origin || 'https://nawwarjourney.qpon';
+      const resetUrl = `${origin}/reset-password?token=${token}`;
+      await sendPasswordResetEmail(teacher.email, teacher.name, resetUrl);
+
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[Forgot Password Error]', error);
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  });
+
+  // Reset Password: verify token and set new password
+  app.post('/api/teacher/reset-password', async (req, res) => {
+    try {
+      const { token, password } = req.body;
+      if (!token || !password) return res.status(400).json({ error: 'Token and password are required' });
+      if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+
+      const { getDb } = await import('../db');
+      const { registeredTeachers, passwordResetTokens } = await import('../../drizzle/schema');
+      const { eq, and, gt, isNull } = await import('drizzle-orm');
+      const bcrypt = await import('bcryptjs');
+
+      const db = await getDb();
+      if (!db) return res.status(500).json({ error: 'Database not available' });
+
+      const tokens = await db.select().from(passwordResetTokens)
+        .where(and(
+          eq(passwordResetTokens.token, token),
+          gt(passwordResetTokens.expiresAt, new Date()),
+          isNull(passwordResetTokens.usedAt)
+        ));
+
+      if (tokens.length === 0) {
+        return res.status(400).json({ error: 'Invalid or expired reset link' });
+      }
+
+      const resetToken = tokens[0];
+      const hashed = await bcrypt.hash(password, 12);
+
+      await db.update(registeredTeachers)
+        .set({ passwordHash: hashed })
+        .where(eq(registeredTeachers.email, resetToken.email));
+
+      await db.update(passwordResetTokens)
+        .set({ usedAt: new Date() })
+        .where(eq(passwordResetTokens.id, resetToken.id));
+
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[Reset Password Error]', error);
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  });
+
   // tRPC API
   app.use(
     "/api/trpc",

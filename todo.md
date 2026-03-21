@@ -75,3 +75,10 @@
 - [x] Add on-screen welcome message after new teacher registration
 - [x] Add welcome email sent to new teacher upon registration
 - [x] Update welcome email sender to info@nawwarjourney.qpon with official signature
+- [x] Add password reset tokens table to DB schema
+- [x] Add backend API: request password reset (send email with token)
+- [x] Add backend API: verify token and set new password
+- [x] Design password reset email template
+- [x] Add "نسيت كلمة المرور" link on login page
+- [x] Build ForgotPassword page (enter email)
+- [x] Build ResetPassword page (enter new password with token from URL)
