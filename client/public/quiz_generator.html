@@ -442,6 +442,25 @@ textarea { resize: vertical; min-height: 200px; line-height: 1.7; }
                     </select>
                 </div>
             </div>
+            <div class="form-row cols-2" style="margin-top:16px">
+                <div>
+                    <label>Subject | المادة الدراسية</label>
+                    <select id="subject-select" class="form-select">
+                        <option value="">— Select Subject | اختر المادة —</option>
+                        <option value="عربي">عربي | Arabic</option>
+                        <option value="رياضيات">رياضيات | Math</option>
+                        <option value="علوم">علوم | Science</option>
+                        <option value="إنجليزي">إنجليزي | English</option>
+                        <option value="دينية">دينية | Islamic Studies</option>
+                        <option value="تاريخ">تاريخ | History</option>
+                        <option value="جغرافيا">جغرافيا | Geography</option>
+                        <option value="تربية وطنية">تربية وطنية | Civic Ed.</option>
+                        <option value="حاسوب">حاسوب | Computer</option>
+                        <option value="فنون">فنون | Arts</option>
+                        <option value="أخرى">أخرى | Other</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -642,10 +661,11 @@ async function generateQuiz() {
         showStatus('loading', '💾 جارٍ حفظ اللعبة...', true);
         try {
             const createdBy = localStorage.getItem('teacherName') || '';
+            const subject = document.getElementById('subject-select').value || '';
             const saveRes = await fetch('/api/quiz/save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, grade, htmlContent: generatedHTML, createdBy })
+                body: JSON.stringify({ title, grade, subject, htmlContent: generatedHTML, createdBy })
             });
             const saveData = await saveRes.json();
             if (saveRes.ok && saveData.success) {

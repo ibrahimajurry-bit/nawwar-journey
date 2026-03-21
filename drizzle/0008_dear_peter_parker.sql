@@ -1,0 +1,1 @@
+ALTER TABLE `generated_quizzes` ADD `subject` varchar(100);

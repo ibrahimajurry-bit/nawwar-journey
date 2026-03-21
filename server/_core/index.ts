@@ -127,7 +127,7 @@ async function startServer() {
   // REST API endpoint for saving generated quiz to S3 + DB
   app.post('/api/quiz/save', async (req, res) => {
     try {
-      const { title, grade, htmlContent, createdBy } = req.body;
+      const { title, grade, subject, htmlContent, createdBy } = req.body;
       if (!title || !grade || !htmlContent) {
         return res.status(400).json({ error: 'title, grade, and htmlContent are required' });
       }
@@ -144,6 +144,7 @@ async function startServer() {
         await db.insert(generatedQuizzes).values({
           title,
           grade,
+          subject: subject || null,
           storageUrl: url,
           storageKey: fileKey,
           createdBy: createdBy || null,

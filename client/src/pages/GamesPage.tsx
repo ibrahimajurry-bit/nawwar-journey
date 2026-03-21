@@ -290,6 +290,11 @@ export default function GamesPage() {
                         <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full" style={{ fontFamily: "'Tajawal', sans-serif" }}>
                           {quiz.grade}
                         </span>
+                        {quiz.subject && (
+                          <span className="text-xs font-medium text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                            {quiz.subject}
+                          </span>
+                        )}
                         {/* Show creator name for owner */}
                         {isOwner && quiz.createdBy && (
                           <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full" style={{ fontFamily: "'Tajawal', sans-serif" }}>

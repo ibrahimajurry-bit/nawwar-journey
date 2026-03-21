@@ -88,3 +88,6 @@
 - [x] Add game subject filter (Arabic, Math, Science, English, etc.)
 - [x] Add 4 gift teacher accounts: Dr. Asem, Prof. Ahmed, Prof. Iman, Prof. Jumana
 - [x] Verify game privacy: teachers only see their own games + can delete their own games
+- [x] Add subject field to DB schema and game save API
+- [x] Add subject selector in game creator UI
+- [x] Update GamesPage subject filter to use real DB field with badge display
