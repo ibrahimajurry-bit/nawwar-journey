@@ -94,3 +94,7 @@
 - [x] Add contact us form (name, email, message) with WhatsApp button (00201120500602)
 - [x] Ensure game links are public (no login required) and add copy link button in GamesPage
 - [x] Add QR code generation for each game with download and display modal
+- [ ] Professional design overhaul: global styles, typography, color system
+- [ ] Redesign TeacherLogin page with premium look
+- [ ] Redesign Landing page with professional layout
+- [ ] Redesign GamesPage with polished cards and layout

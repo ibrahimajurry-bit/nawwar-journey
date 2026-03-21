@@ -227,272 +227,130 @@ export default function TeacherLogin({ onLogin }: TeacherLoginProps) {
   }
 
   return (
-    <div dir="rtl" className="min-h-screen bg-gradient-to-br from-[#1a6b3c] via-[#1e7a44] to-[#1b5e8a] flex items-center justify-center p-4">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" />
+    <div dir="rtl" className="min-h-screen flex" style={{ background: 'oklch(0.985 0.005 80)' }}>
+      {/* Left decorative panel */}
+      <div
+        className="hidden lg:flex flex-col justify-between w-96 flex-shrink-0 relative overflow-hidden p-10"
+        style={{ background: 'linear-gradient(160deg, #0f4a2a 0%, #1a6b3c 45%, #1b4e7a 100%)' }}
+      >
+        <div className="absolute top-20 right-10 w-64 h-64 rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #4ade80 0%, transparent 70%)' }} />
+        <div className="absolute bottom-20 left-5 w-48 h-48 rounded-full opacity-15" style={{ background: 'radial-gradient(circle, #60a5fa 0%, transparent 70%)' }} />
+        <div className="relative z-10">
+          <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663029980891/S9UfAnxEfs6upsP98hCzwU/nawwar-logo-AWuZdjrAyTDDSJocatLxwi.png" alt="Nawwar Logo" className="w-16 h-16 rounded-2xl mb-8" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }} />
+          <h2 className="text-3xl font-bold text-white mb-3" style={{ fontFamily: "'Tajawal', sans-serif", lineHeight: 1.3 }}>رحلة نوّار</h2>
+          <p className="text-white/60 text-sm mb-10" style={{ fontFamily: "'Tajawal', sans-serif" }}>منصة تعليمية للمعلمين المبدعين</p>
+          <div className="space-y-4">
+            {[
+              { label: 'منشئ الألعاب التعليمية بالذكاء الاصطناعي' },
+              { label: 'مولّد أكواد QR مخصصة للدروس' },
+              { label: 'مكتبة ألعاب تفاعلية قابلة للمشاركة' },
+            ].map((f, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <span className="text-green-400 text-xs mt-1 flex-shrink-0">✦</span>
+                <span className="text-white/75 text-sm" style={{ fontFamily: "'Tajawal', sans-serif" }}>{f.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <p className="relative z-10 text-white/30 text-xs" style={{ fontFamily: "'Tajawal', sans-serif" }}>© 2025 Nawwar Journey</p>
       </div>
 
-      <div className="relative z-10 w-full max-w-md">
-        {/* Logo */}
-        <div className="flex justify-center mb-4">
-          <img
-            src="https://d2xsxph8kpxj0f.cloudfront.net/310419663029980891/S9UfAnxEfs6upsP98hCzwU/nawwar-logo-AWuZdjrAyTDDSJocatLxwi.png"
-            alt="Nawar Logo"
-            className="w-20 h-20 rounded-2xl shadow-lg"
-          />
-        </div>
+      {/* Right form panel */}
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 overflow-y-auto">
+        <div className="w-full max-w-sm" dir="rtl">
+          <div className="flex justify-center mb-8 lg:hidden">
+            <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663029980891/S9UfAnxEfs6upsP98hCzwU/nawwar-logo-AWuZdjrAyTDDSJocatLxwi.png" alt="Nawwar Logo" className="w-16 h-16 rounded-2xl" style={{ boxShadow: '0 4px 20px rgba(26,107,60,0.25)' }} />
+          </div>
+          <div className="mb-7">
+            <h1 className="text-2xl font-bold text-gray-900 mb-1" style={{ fontFamily: "'Tajawal', sans-serif" }}>{mode === "register" ? "إنشاء حساب جديد" : "مرحباً بعودتك"}</h1>
+            <p className="text-sm text-gray-400" style={{ fontFamily: "'Tajawal', sans-serif" }}>{mode === "register" ? "أنشئ حسابك للوصول إلى منصة رحلة نوّار" : "سجّل دخولك للمتابعة"}</p>
+          </div>
+          <div className="flex gap-1 p-1 rounded-xl mb-6" style={{ background: 'oklch(0.94 0.005 260)' }}>
+            <button onClick={() => { setMode("login"); setError(""); setSuccessMsg(""); }} className="flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all" style={mode === "login" ? { background: 'white', color: '#1a6b3c', boxShadow: '0 1px 4px rgba(0,0,0,0.1)', fontFamily: "'Tajawal', sans-serif" } : { color: '#6b7280', fontFamily: "'Tajawal', sans-serif" }}>تسجيل الدخول</button>
+            <button onClick={() => { setMode("register"); setError(""); setSuccessMsg(""); }} className="flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all" style={mode === "register" ? { background: 'white', color: '#1a6b3c', boxShadow: '0 1px 4px rgba(0,0,0,0.1)', fontFamily: "'Tajawal', sans-serif" } : { color: '#6b7280', fontFamily: "'Tajawal', sans-serif" }}>حساب جديد</button>
+          </div>
+          {error && (<div className="rounded-xl px-4 py-3 mb-5 text-sm text-center" style={{ background: 'oklch(0.97 0.02 25)', color: 'oklch(0.5 0.18 25)', border: '1px solid oklch(0.9 0.06 25)', fontFamily: "'Tajawal', sans-serif" }}>{error}</div>)}
+          {successMsg && (<div className="rounded-xl px-4 py-3 mb-5 text-sm text-center" style={{ background: 'oklch(0.97 0.03 155)', color: 'oklch(0.35 0.12 155)', border: '1px solid oklch(0.88 0.06 155)', fontFamily: "'Tajawal', sans-serif" }}>{successMsg}</div>)}
 
-        {/* Card */}
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-br from-[#1a6b3c] to-[#1b5e8a] px-6 py-6 text-center text-white">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/20 mb-3">
-              {mode === "register" ? <UserPlus className="w-6 h-6 text-white" /> : <Lock className="w-6 h-6 text-white" />}
+          {mode === "login" && (
+            <>
+              <div className="flex gap-2 mb-5">
+                <button onClick={() => { setLoginTab("username"); setError(""); }} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold transition-all" style={loginTab === "username" ? { background: 'linear-gradient(135deg, #1a6b3c, #1b4e7a)', color: 'white', fontFamily: "'Tajawal', sans-serif", boxShadow: '0 4px 12px rgba(26,107,60,0.3)' } : { background: 'oklch(0.94 0.005 260)', color: '#6b7280', fontFamily: "'Tajawal', sans-serif" }}>
+                  <User size={14} />اسم المستخدم
+                </button>
+                <button onClick={() => { setLoginTab("email"); setError(""); }} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold transition-all" style={loginTab === "email" ? { background: 'linear-gradient(135deg, #1a6b3c, #1b4e7a)', color: 'white', fontFamily: "'Tajawal', sans-serif", boxShadow: '0 4px 12px rgba(26,107,60,0.3)' } : { background: 'oklch(0.94 0.005 260)', color: '#6b7280', fontFamily: "'Tajawal', sans-serif" }}>
+                  <Mail size={14} />الإيميل
+                </button>
+              </div>
+              {loginTab === "username" && (
+                <form onSubmit={handleUsernameLogin} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>اسم المستخدم</label>
+                    <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="أدخل اسم المستخدم" className="input-premium" style={{ fontFamily: "'Tajawal', sans-serif" }} />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>كلمة المرور</label>
+                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="أدخل كلمة المرور" className="input-premium" style={{ fontFamily: "'Tajawal', sans-serif" }} />
+                  </div>
+                  <button type="submit" className="btn-primary w-full py-3" style={{ fontFamily: "'Tajawal', sans-serif" }}>دخول</button>
+                </form>
+              )}
+              {loginTab === "email" && (
+                <form onSubmit={handleEmailLogin} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>البريد الإلكتروني</label>
+                    <input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder="example@email.com" className="input-premium text-left" dir="ltr" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>كلمة المرور</label>
+                    <input type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder="أدخل كلمة المرور" className="input-premium" style={{ fontFamily: "'Tajawal', sans-serif" }} />
+                  </div>
+                  <button type="submit" disabled={loading} className="btn-primary w-full py-3" style={{ fontFamily: "'Tajawal', sans-serif" }}>{loading ? "جاري الدخول..." : "دخول"}</button>
+                  <div className="text-center pt-1">
+                    <a href="/forgot-password" className="text-sm font-medium" style={{ color: '#1a6b3c', fontFamily: "'Tajawal', sans-serif" }}>نسيت كلمة المرور؟</a>
+                  </div>
+                </form>
+              )}
+            </>
+          )}
+
+          {mode === "register" && (
+            <form onSubmit={handleRegister} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>الاسم (بالإنجليزية) <span className="text-red-400">*</span></label>
+                <input type="text" value={regName} onChange={(e) => setRegName(e.target.value)} placeholder="Your Name in English" className="input-premium text-left" dir="ltr" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>البريد الإلكتروني <span className="text-red-400">*</span></label>
+                <input type="email" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} placeholder="example@email.com" className="input-premium text-left" dir="ltr" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>رقم الواتساب <span className="text-red-400">*</span></label>
+                <input type="tel" value={regWhatsapp} onChange={(e) => setRegWhatsapp(e.target.value)} placeholder="+966XXXXXXXXX" className="input-premium text-left" dir="ltr" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>كلمة المرور <span className="text-red-400">*</span></label>
+                <input type="password" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} placeholder="6 أحرف على الأقل" className="input-premium" style={{ fontFamily: "'Tajawal', sans-serif" }} />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>تأكيد كلمة المرور <span className="text-red-400">*</span></label>
+                <input type="password" value={regPassword2} onChange={(e) => setRegPassword2(e.target.value)} placeholder="أعد كتابة كلمة المرور" className="input-premium" style={{ fontFamily: "'Tajawal', sans-serif" }} />
+              </div>
+              <button type="submit" disabled={loading} className="btn-primary w-full py-3" style={{ fontFamily: "'Tajawal', sans-serif" }}>{loading ? "جاري التسجيل..." : "إنشاء الحساب"}</button>
+            </form>
+          )}
+
+          {mode === "login" && (
+            <div className="mt-8 pt-6" style={{ borderTop: '1px solid oklch(0.91 0.01 260)' }}>
+              <p className="text-center text-xs text-gray-400 mb-4" style={{ fontFamily: "'Tajawal', sans-serif" }}>للحصول على بيانات دخول مخصصة، تواصل معنا</p>
+              <div className="flex flex-col items-center gap-3">
+                <img src="https://d2xsxph8kpxj0f.cloudfront.net/310419663029980891/S9UfAnxEfs6upsP98hCzwU/whatsapp_qr_cb063965.png" alt="WhatsApp QR Code" className="w-24 h-24 rounded-xl cursor-pointer hover:opacity-80 transition-opacity" style={{ border: '1.5px solid oklch(0.88 0.08 155)' }} onClick={() => window.open('https://wa.me/201120500602?text=مرحباً، أريد الحصول على بيانات الدخول لمنصة رحلة نوّار', '_blank')} />
+                <button type="button" onClick={() => window.open('https://wa.me/201120500602?text=مرحباً، أريد الحصول على بيانات الدخول لمنصة رحلة نوّار', '_blank')} className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all" style={{ background: '#22c55e', color: 'white', fontFamily: "'Tajawal', sans-serif", boxShadow: '0 4px 12px rgba(34,197,94,0.3)' }}>
+                  <MessageCircle size={16} />تواصل عبر الواتساب
+                </button>
+              </div>
             </div>
-            <h1 className="text-xl font-bold" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-              {mode === "register" ? "إنشاء حساب جديد" : "تسجيل الدخول"}
-            </h1>
-            <p className="text-white/70 text-xs mt-1">
-              {mode === "register" ? "Create a new teacher account" : "Nawwar Journey Platform"}
-            </p>
-          </div>
-
-          {/* Mode Toggle */}
-          <div className="flex border-b border-gray-100">
-            <button
-              onClick={() => { setMode("login"); setError(""); setSuccessMsg(""); }}
-              className={`flex-1 py-3 text-sm font-semibold transition-colors ${mode === "login" ? "text-[#1a6b3c] border-b-2 border-[#1a6b3c]" : "text-gray-400 hover:text-gray-600"}`}
-              style={{ fontFamily: "'Tajawal', sans-serif" }}
-            >
-              تسجيل الدخول
-            </button>
-            <button
-              onClick={() => { setMode("register"); setError(""); setSuccessMsg(""); }}
-              className={`flex-1 py-3 text-sm font-semibold transition-colors ${mode === "register" ? "text-[#1a6b3c] border-b-2 border-[#1a6b3c]" : "text-gray-400 hover:text-gray-600"}`}
-              style={{ fontFamily: "'Tajawal', sans-serif" }}
-            >
-              حساب جديد
-            </button>
-          </div>
-
-          <div className="p-6">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 text-sm text-center" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                {error}
-              </div>
-            )}
-            {successMsg && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl mb-4 text-sm text-center" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                {successMsg}
-              </div>
-            )}
-
-            {/* LOGIN MODE */}
-            {mode === "login" && (
-              <>
-                {/* Login Tab Switcher */}
-                <div className="flex gap-2 mb-5">
-                  <button
-                    onClick={() => { setLoginTab("username"); setError(""); }}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-all ${loginTab === "username" ? "bg-[#1a6b3c] text-white shadow-sm" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}
-                    style={{ fontFamily: "'Tajawal', sans-serif" }}
-                  >
-                    <User size={14} />
-                    اسم المستخدم
-                  </button>
-                  <button
-                    onClick={() => { setLoginTab("email"); setError(""); }}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-medium transition-all ${loginTab === "email" ? "bg-[#1a6b3c] text-white shadow-sm" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}
-                    style={{ fontFamily: "'Tajawal', sans-serif" }}
-                  >
-                    <Mail size={14} />
-                    الإيميل
-                  </button>
-                </div>
-
-                {/* Username Login */}
-                {loginTab === "username" && (
-                  <form onSubmit={handleUsernameLogin} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                        اسم المستخدم
-                      </label>
-                      <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder="أدخل اسم المستخدم"
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1a6b3c] transition-colors"
-                        style={{ fontFamily: "'Tajawal', sans-serif" }}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                        كلمة المرور
-                      </label>
-                      <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="أدخل كلمة المرور"
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1a6b3c] transition-colors"
-                        style={{ fontFamily: "'Tajawal', sans-serif" }}
-                      />
-                    </div>
-                    <Button type="submit" className="w-full bg-gradient-to-r from-[#1a6b3c] to-[#1b5e8a] text-white font-semibold py-3 rounded-xl text-base" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                      دخول
-                    </Button>
-                  </form>
-                )}
-
-                {/* Email Login */}
-                {loginTab === "email" && (
-                  <form onSubmit={handleEmailLogin} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                        البريد الإلكتروني
-                      </label>
-                      <input
-                        type="email"
-                        value={loginEmail}
-                        onChange={(e) => setLoginEmail(e.target.value)}
-                        placeholder="example@email.com"
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1a6b3c] transition-colors text-left"
-                        dir="ltr"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                        كلمة المرور
-                      </label>
-                      <input
-                        type="password"
-                        value={loginPassword}
-                        onChange={(e) => setLoginPassword(e.target.value)}
-                        placeholder="أدخل كلمة المرور"
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1a6b3c] transition-colors"
-                        style={{ fontFamily: "'Tajawal', sans-serif" }}
-                      />
-                    </div>
-                    <Button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-[#1a6b3c] to-[#1b5e8a] text-white font-semibold py-3 rounded-xl text-base" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                      {loading ? "جاري الدخول..." : "دخول"}
-                    </Button>
-                    <div className="text-center pt-1">
-                      <a
-                        href="/forgot-password"
-                        className="text-sm text-blue-600 hover:underline"
-                        style={{ fontFamily: "'Tajawal', sans-serif" }}
-                      >
-                        نسيت كلمة المرور؟
-                      </a>
-                    </div>
-                  </form>
-                )}
-              </>
-            )}
-
-            {/* REGISTER MODE */}
-            {mode === "register" && (
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                    الاسم (بالإنجليزية) <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={regName}
-                    onChange={(e) => setRegName(e.target.value)}
-                    placeholder="Your Name in English"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1a6b3c] transition-colors text-left"
-                    dir="ltr"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                    البريد الإلكتروني <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={regEmail}
-                    onChange={(e) => setRegEmail(e.target.value)}
-                    placeholder="example@email.com"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1a6b3c] transition-colors text-left"
-                    dir="ltr"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                    رقم الواتساب <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    value={regWhatsapp}
-                    onChange={(e) => setRegWhatsapp(e.target.value)}
-                    placeholder="+966XXXXXXXXX"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1a6b3c] transition-colors text-left"
-                    dir="ltr"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                    كلمة المرور <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="password"
-                    value={regPassword}
-                    onChange={(e) => setRegPassword(e.target.value)}
-                    placeholder="6 أحرف على الأقل"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1a6b3c] transition-colors"
-                    style={{ fontFamily: "'Tajawal', sans-serif" }}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                    تأكيد كلمة المرور <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="password"
-                    value={regPassword2}
-                    onChange={(e) => setRegPassword2(e.target.value)}
-                    placeholder="أعد كتابة كلمة المرور"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1a6b3c] transition-colors"
-                    style={{ fontFamily: "'Tajawal', sans-serif" }}
-                  />
-                </div>
-                <Button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-[#1a6b3c] to-[#1b5e8a] text-white font-semibold py-3 rounded-xl text-base" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                  {loading ? "جاري التسجيل..." : "إنشاء الحساب"}
-                </Button>
-              </form>
-            )}
-
-            {/* WhatsApp Section - only in login mode */}
-            {mode === "login" && (
-              <div className="mt-5 pt-5 border-t border-gray-200">
-                <p className="text-center text-xs text-gray-500 mb-3" style={{ fontFamily: "'Tajawal', sans-serif" }}>
-                  للحصول على بيانات دخول مخصصة، تواصل معنا
-                </p>
-                <div className="flex flex-col items-center gap-2">
-                  <img
-                    src="https://d2xsxph8kpxj0f.cloudfront.net/310419663029980891/S9UfAnxEfs6upsP98hCzwU/whatsapp_qr_cb063965.png"
-                    alt="WhatsApp QR Code"
-                    className="w-28 h-28 rounded-xl border-2 border-green-200 cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={() => window.open('https://wa.me/201120500602?text=مرحباً، أريد الحصول على بيانات الدخول لمنصة رحلة نوّار', '_blank')}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => window.open('https://wa.me/201120500602?text=مرحباً، أريد الحصول على بيانات الدخول لمنصة رحلة نوّار', '_blank')}
-                    className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors"
-                    style={{ fontFamily: "'Tajawal', sans-serif" }}
-                  >
-                    <MessageCircle size={16} />
-                    تواصل عبر الواتساب
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </div>
