@@ -86,3 +86,5 @@
 - [x] Add account approval email sent to teacher when admin approves their account
 - [x] Add admin dashboard stats (games count per teacher with progress bars)
 - [x] Add game subject filter (Arabic, Math, Science, English, etc.)
+- [x] Add 4 gift teacher accounts: Dr. Asem, Prof. Ahmed, Prof. Iman, Prof. Jumana
+- [x] Verify game privacy: teachers only see their own games + can delete their own games

@@ -195,9 +195,8 @@ async function startServer() {
   app.delete('/api/quiz/:id', async (req, res) => {
     try {
       const requestUser = req.query.user as string | undefined;
-      // Only the owner (admin2009) can delete quizzes
-      if (requestUser !== 'admin2009') {
-        return res.status(403).json({ error: 'Only the site owner can delete quizzes' });
+      if (!requestUser) {
+        return res.status(403).json({ error: 'Unauthorized' });
       }
 
       const quizId = parseInt(req.params.id);
@@ -207,14 +206,26 @@ async function startServer() {
 
       const { getDb } = await import('../db');
       const { generatedQuizzes } = await import('../../drizzle/schema');
-      const { eq } = await import('drizzle-orm');
+      const { eq, and } = await import('drizzle-orm');
 
       const db = await getDb();
       if (!db) {
         return res.status(500).json({ error: 'Database not available' });
       }
 
-      await db.delete(generatedQuizzes).where(eq(generatedQuizzes.id, quizId));
+      const isOwner = requestUser === 'admin2009';
+      if (isOwner) {
+        // Owner can delete any quiz
+        await db.delete(generatedQuizzes).where(eq(generatedQuizzes.id, quizId));
+      } else {
+        // Teacher can only delete their own quiz
+        const existing = await db.select().from(generatedQuizzes)
+          .where(and(eq(generatedQuizzes.id, quizId), eq(generatedQuizzes.createdBy, requestUser)));
+        if (existing.length === 0) {
+          return res.status(403).json({ error: 'You can only delete your own games' });
+        }
+        await db.delete(generatedQuizzes).where(eq(generatedQuizzes.id, quizId));
+      }
       res.json({ success: true });
     } catch (error: any) {
       console.error('[Quiz Delete Error]', error);

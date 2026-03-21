@@ -40,6 +40,10 @@ export default function TeacherLogin({ onLogin }: TeacherLoginProps) {
     "Ayaali": { password: "aya1234", role: "teacher" },
     "Ayaali123": { password: "Ayaali123", role: "teacher" },
     "Ahmed123": { password: "Ahmed123", role: "teacher" },
+    "dr.asem": { password: "asem2025", role: "teacher" },
+    "prof.ahmed": { password: "ahmed2025", role: "teacher" },
+    "prof.iman": { password: "iman2025", role: "teacher" },
+    "prof.jumana": { password: "jumana2025", role: "teacher" },
   };
 
   const handleUsernameLogin = (e: React.FormEvent) => {

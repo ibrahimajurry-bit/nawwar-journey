@@ -115,6 +115,10 @@ export default function AdminDashboard() {
     { name: "Ayaali", type: "معلمة" },
     { name: "Ayaali123", type: "معلمة" },
     { name: "Ahmed123", type: "معلم" },
+    { name: "dr.asem", type: "دكتور" },
+    { name: "prof.ahmed", type: "أستاذ" },
+    { name: "prof.iman", type: "أستاذة" },
+    { name: "prof.jumana", type: "أستاذة" },
   ];
 
   return (

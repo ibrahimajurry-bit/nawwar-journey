@@ -309,8 +309,8 @@ export default function GamesPage() {
                       </div>
                     </div>
                   </a>
-                  {/* Delete button - owner only */}
-                  {isOwner && (
+                  {/* Delete button - owner can delete any, teacher can delete their own */}
+                  {(isOwner || quiz.createdBy === teacherName) && (
                     <button
                       onClick={(e) => {
                         e.preventDefault();
