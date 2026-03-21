@@ -5,7 +5,7 @@
  */
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowRight, Gamepad2, BookOpen, Sparkles, Loader2, Trash2, Search, Filter } from "lucide-react";
+import { ArrowRight, Gamepad2, BookOpen, Sparkles, Loader2, Trash2, Search, Filter, Copy, Check } from "lucide-react";
 import { useEffect, useState } from "react";
 
 
@@ -42,6 +42,16 @@ export default function GamesPage() {
   const [savedQuizzes, setSavedQuizzes] = useState<SavedQuiz[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<number | null>(null);
+  const [copied, setCopied] = useState<number | null>(null);
+
+  const handleCopyLink = (e: React.MouseEvent, quizId: number, url: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(quizId);
+      setTimeout(() => setCopied(null), 2000);
+    });
+  };
   const [searchQuery, setSearchQuery] = useState("");
   const [gradeFilter, setGradeFilter] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("");
@@ -314,6 +324,18 @@ export default function GamesPage() {
                       </div>
                     </div>
                   </a>
+                  {/* Copy link button - always visible for all teachers */}
+                  <button
+                    onClick={(e) => handleCopyLink(e, quiz.id, quiz.storageUrl)}
+                    className="absolute top-3 right-3 z-20 bg-white/90 hover:bg-white text-purple-600 rounded-full p-2 shadow-lg transition-all opacity-0 group-hover:opacity-100"
+                    title="نسخ رابط اللعبة"
+                  >
+                    {copied === quiz.id ? (
+                      <Check size={16} className="text-green-600" />
+                    ) : (
+                      <Copy size={16} />
+                    )}
+                  </button>
                   {/* Delete button - owner can delete any, teacher can delete their own */}
                   {(isOwner || quiz.createdBy === teacherName) && (
                     <button
