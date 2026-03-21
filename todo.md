@@ -74,3 +74,4 @@
 - [x] Add search and filter by grade in games page
 - [x] Add on-screen welcome message after new teacher registration
 - [x] Add welcome email sent to new teacher upon registration
+- [x] Update welcome email sender to info@nawwarjourney.qpon with official signature
