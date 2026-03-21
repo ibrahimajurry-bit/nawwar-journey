@@ -124,6 +124,26 @@ async function startServer() {
       res.status(500).json({ error: error.message || 'Internal server error' });
     }
   });
+  // REST API endpoint for contact form submissions
+  app.post('/api/contact', async (req, res) => {
+    try {
+      const { name, email, message } = req.body;
+      if (!name || !message) {
+        return res.status(400).json({ error: 'name and message are required' });
+      }
+      const { notifyOwner } = await import('./notification');
+      const emailLine = email ? `\nالإيميل: ${email}` : '';
+      await notifyOwner({
+        title: `📩 تواصل جديد من: ${name}`,
+        content: `الاسم: ${name}${emailLine}\n\nالرسالة:\n${message}`,
+      });
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('[Contact Error]', error);
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  });
+
   // REST API endpoint for saving generated quiz to S3 + DB
   app.post('/api/quiz/save', async (req, res) => {
     try {
