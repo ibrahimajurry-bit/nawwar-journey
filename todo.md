@@ -93,3 +93,4 @@
 - [x] Update GamesPage subject filter to use real DB field with badge display
 - [x] Add contact us form (name, email, message) with WhatsApp button (00201120500602)
 - [x] Ensure game links are public (no login required) and add copy link button in GamesPage
+- [x] Add QR code generation for each game with download and display modal

@@ -5,8 +5,9 @@
  */
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowRight, Gamepad2, BookOpen, Sparkles, Loader2, Trash2, Search, Filter, Copy, Check } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowRight, Gamepad2, BookOpen, Sparkles, Loader2, Trash2, Search, Filter, Copy, Check, QrCode, Download, X } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { QRCodeCanvas } from "qrcode.react";
 
 
 
@@ -43,6 +44,58 @@ export default function GamesPage() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<number | null>(null);
   const [copied, setCopied] = useState<number | null>(null);
+  const [qrModal, setQrModal] = useState<{ title: string; url: string } | null>(null);
+  const qrRef = useRef<HTMLDivElement>(null);
+
+  const handleShowQR = (e: React.MouseEvent, title: string, url: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setQrModal({ title, url });
+  };
+
+  const handleDownloadQR = () => {
+    if (!qrRef.current || !qrModal) return;
+    const canvas = qrRef.current.querySelector('canvas');
+    if (!canvas) return;
+    // Create a new canvas with title and branding
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = 600;
+    exportCanvas.height = 720;
+    const ctx = exportCanvas.getContext('2d')!;
+    // Background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 600, 720);
+    // Header gradient
+    const grad = ctx.createLinearGradient(0, 0, 600, 120);
+    grad.addColorStop(0, '#1a6b3c');
+    grad.addColorStop(1, '#1b5e8a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 600, 120);
+    // Title
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 28px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(qrModal.title, 300, 55);
+    ctx.font = '18px Arial';
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fillText('Nawwar Journey — امسح للعب', 300, 90);
+    // QR code
+    ctx.drawImage(canvas, 75, 140, 450, 450);
+    // Footer
+    ctx.fillStyle = '#f0f7f0';
+    ctx.fillRect(0, 610, 600, 110);
+    ctx.fillStyle = '#1a6b3c';
+    ctx.font = 'bold 16px Arial';
+    ctx.fillText('nawwarjourney.qpon', 300, 650);
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '13px Arial';
+    ctx.fillText('امسح رمز QR للدخول للعبة مباشرة', 300, 680);
+    // Download
+    const link = document.createElement('a');
+    link.download = `qr-${qrModal.title.replace(/\s+/g, '-')}.png`;
+    link.href = exportCanvas.toDataURL('image/png');
+    link.click();
+  };
 
   const handleCopyLink = (e: React.MouseEvent, quizId: number, url: string) => {
     e.preventDefault();
@@ -324,6 +377,14 @@ export default function GamesPage() {
                       </div>
                     </div>
                   </a>
+                  {/* QR code button */}
+                  <button
+                    onClick={(e) => handleShowQR(e, quiz.title, quiz.storageUrl)}
+                    className="absolute top-14 right-3 z-20 bg-white/90 hover:bg-white text-green-600 rounded-full p-2 shadow-lg transition-all opacity-0 group-hover:opacity-100"
+                    title="عرض رمز QR"
+                  >
+                    <QrCode size={16} />
+                  </button>
                   {/* Copy link button - always visible for all teachers */}
                   <button
                     onClick={(e) => handleCopyLink(e, quiz.id, quiz.storageUrl)}
@@ -390,6 +451,66 @@ export default function GamesPage() {
           )}
         </motion.div>
       </main>
+
+      {/* QR Code Modal */}
+      {qrModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setQrModal(null)}
+        >
+          <div
+            className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-green-700 to-blue-700 rounded-2xl p-4 mb-6">
+              <h3 className="text-white font-bold text-xl mb-1" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                {qrModal.title}
+              </h3>
+              <p className="text-white/80 text-sm" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                امسح الرمز للدخول للعبة مباشرة
+              </p>
+            </div>
+            {/* QR Code */}
+            <div ref={qrRef} className="flex justify-center mb-6 p-4 bg-gray-50 rounded-2xl">
+              <QRCodeCanvas
+                value={qrModal.url}
+                size={220}
+                bgColor="#f9fafb"
+                fgColor="#1a6b3c"
+                level="H"
+                imageSettings={{
+                  src: "/favicon.ico",
+                  x: undefined,
+                  y: undefined,
+                  height: 36,
+                  width: 36,
+                  excavate: true,
+                }}
+              />
+            </div>
+            {/* URL */}
+            <p className="text-xs text-gray-400 mb-6 break-all px-2">{qrModal.url}</p>
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={handleDownloadQR}
+                className="flex-1 flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 text-white font-bold py-3 rounded-xl transition-colors"
+                style={{ fontFamily: "'Tajawal', sans-serif" }}
+              >
+                <Download size={18} />
+                تنزيل
+              </button>
+              <button
+                onClick={() => setQrModal(null)}
+                className="flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-600 p-3 rounded-xl transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="bg-orange-500 text-white/70 py-4 text-center">
