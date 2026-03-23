@@ -42,6 +42,7 @@ const quizGradients = [
 export default function GamesPage() {
   const [savedQuizzes, setSavedQuizzes] = useState<SavedQuiz[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dbError, setDbError] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
   const [copied, setCopied] = useState<number | null>(null);
   const [qrModal, setQrModal] = useState<{ title: string; url: string } | null>(null);
@@ -140,10 +141,16 @@ export default function GamesPage() {
     fetch(`/api/quiz/list?user=${encodeURIComponent(userParam)}`)
       .then((res) => res.json())
       .then((data) => {
-        setSavedQuizzes(data.quizzes || []);
+        if (data.error) {
+          setDbError(true);
+        } else {
+          setSavedQuizzes(data.quizzes || []);
+          setDbError(false);
+        }
       })
       .catch((err) => {
         console.error("Failed to load quizzes:", err);
+        setDbError(true);
       })
       .finally(() => setLoading(false));
   };
@@ -441,8 +448,30 @@ export default function GamesPage() {
             </motion.div>
           )}
 
-          {/* Placeholder - only show if no saved quizzes and not loading */}
-          {!loading && savedQuizzes.length === 0 && (
+          {/* DB Error state */}
+          {!loading && dbError && (
+            <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible" className="col-span-full">
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center">
+                <div className="text-4xl mb-3">⚠️</div>
+                <p className="text-amber-800 font-bold text-lg" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                  الألعاب مؤقتاً غير متاحة
+                </p>
+                <p className="text-amber-600 text-sm mt-2" style={{ fontFamily: "'Tajawal', sans-serif" }}>
+                  ألعابك محفوظة وستعود للظهور قريباً. يرجى المحاولة مرة أخرى بعد قليل.
+                </p>
+                <button
+                  onClick={loadQuizzes}
+                  className="mt-4 px-5 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors"
+                  style={{ fontFamily: "'Tajawal', sans-serif" }}
+                >
+                  إعادة المحاولة
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Placeholder - only show if no saved quizzes and not loading and no DB error */}
+          {!loading && savedQuizzes.length === 0 && !dbError && (
             <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
               <div className="relative bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 overflow-hidden h-full min-h-[280px] flex items-center justify-center">
                 <div className="text-center p-6">

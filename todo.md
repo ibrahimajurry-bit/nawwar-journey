@@ -100,3 +100,4 @@
 - [ ] Redesign GamesPage with polished cards and layout
 - [x] Fix game URLs to use clean slugs like /games/play/:id instead of CDN URLs
 - [x] Restore old icon card design on Landing page (white cards with large colored icons)
+- [x] Investigate missing games bug - DB temporarily unavailable (TiDB issue), added friendly error message with retry button
