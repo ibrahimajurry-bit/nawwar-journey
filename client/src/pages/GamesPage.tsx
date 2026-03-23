@@ -135,6 +135,13 @@ export default function GamesPage() {
   const teacherName = localStorage.getItem("teacherName") || "";
   const isOwner = localStorage.getItem("isOwner") === "true" || teacherName === "admin2009";
 
+  const getCachedGames = (): SavedQuiz[] => {
+    try {
+      const cacheKey = 'nawwar_games_' + (teacherName || 'guest');
+      return JSON.parse(localStorage.getItem(cacheKey) || '[]');
+    } catch { return []; }
+  };
+
   const loadQuizzes = () => {
     // Owner sees all quizzes, teachers see only their own
     const userParam = isOwner ? "__all__" : teacherName;
@@ -142,15 +149,36 @@ export default function GamesPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.error) {
-          setDbError(true);
+          // DB error - fall back to cached games
+          const cached = getCachedGames();
+          if (cached.length > 0) {
+            setSavedQuizzes(cached);
+            setDbError(false); // show cached games without error banner
+          } else {
+            setDbError(true);
+          }
         } else {
           setSavedQuizzes(data.quizzes || []);
           setDbError(false);
+          // Update cache with latest from server
+          if (!isOwner && teacherName && data.quizzes?.length > 0) {
+            try {
+              const cacheKey = 'nawwar_games_' + teacherName;
+              localStorage.setItem(cacheKey, JSON.stringify(data.quizzes.slice(0, 50)));
+            } catch { /* ignore */ }
+          }
         }
       })
       .catch((err) => {
         console.error("Failed to load quizzes:", err);
-        setDbError(true);
+        // Network error - fall back to cache
+        const cached = getCachedGames();
+        if (cached.length > 0) {
+          setSavedQuizzes(cached);
+          setDbError(false);
+        } else {
+          setDbError(true);
+        }
       })
       .finally(() => setLoading(false));
   };

@@ -669,6 +669,23 @@ async function generateQuiz() {
             });
             const saveData = await saveRes.json();
             if (saveRes.ok && saveData.success) {
+                // Cache game in localStorage as backup
+                try {
+                    const cacheKey = 'nawwar_games_' + (createdBy || 'guest');
+                    const cached = JSON.parse(localStorage.getItem(cacheKey) || '[]');
+                    const newEntry = {
+                        id: saveData.id || Date.now(),
+                        title,
+                        grade,
+                        subject: subject || null,
+                        storageUrl: saveData.url || '',
+                        createdBy: createdBy || null,
+                        createdAt: new Date().toISOString()
+                    };
+                    cached.unshift(newEntry);
+                    // Keep last 50 games in cache
+                    localStorage.setItem(cacheKey, JSON.stringify(cached.slice(0, 50)));
+                } catch(cacheErr) { /* ignore cache errors */ }
                 showStatus('success', '✅ تم توليد ' + parsed.length + ' سؤال! اللعبة محفوظة في قسم الألعاب التعليمية.');
             } else {
                 showStatus('success', '✅ تم توليد ' + parsed.length + ' سؤال! (لم يتم الحفظ على السيرفر)');
